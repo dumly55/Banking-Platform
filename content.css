@@ -1,0 +1,184 @@
+
+.preheader {
+  display: none !important;
+  visibility: hidden;
+  font-size: 1px;
+  mso-hide: all;
+  line-height: 1px;
+  max-height: 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+/* Type ------------------------------ */
+
+body,
+td,
+th {
+  font-family: "Nunito Sans", Helvetica, Arial, sans-serif;
+}
+
+h1 {
+  margin-top: 0;
+  color: #333333;
+  font-size: 22px;
+  font-weight: bold;
+  text-align: left;
+}
+
+h2 {
+  margin-top: 0;
+  color: #333333;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: left;
+}
+
+h3 {
+  margin-top: 0;
+  color: #333333;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+}
+
+td,
+th {
+  font-size: 16px;
+}
+
+p,
+ul,
+ol,
+blockquote {
+  margin: .4em 0 1.1875em;
+  font-size: 16px;
+  line-height: 1.625;
+}
+
+p.sub {
+  font-size: 13px;
+}
+/* Utilities ------------------------------ */
+
+.align-right {
+  text-align: right;
+}
+
+.align-left {
+  text-align: left;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.u-margin-bottom-none {
+  margin-bottom: 0;
+}
+/* Buttons ------------------------------ */
+
+.button {
+  background-color: #3869D4;
+  border-top: 10px solid #3869D4;
+  border-right: 18px solid #3869D4;
+  border-bottom: 10px solid #3869D4;
+  border-left: 18px solid #3869D4;
+  display: inline-block;
+  color: #FFF;
+  text-decoration: none;
+  border-radius: 3px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16);
+  -webkit-text-size-adjust: none;
+  box-sizing: border-box;
+}
+
+.button--green {
+  background-color: #22BC66;
+  border-top: 10px solid #22BC66;
+  border-right: 18px solid #22BC66;
+  border-bottom: 10px solid #22BC66;
+  border-left: 18px solid #22BC66;
+}
+
+body {
+  background-color: #F2F4F6;
+  color: #51545E;
+}
+
+p {
+  color: #51545E;
+}
+
+.email-wrapper {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  -premailer-width: 100%;
+  -premailer-cellpadding: 0;
+  -premailer-cellspacing: 0;
+  background-color: #F2F4F6;
+}
+
+.email-content {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  -premailer-width: 100%;
+  -premailer-cellpadding: 0;
+  -premailer-cellspacing: 0;
+}
+/* Masthead ----------------------- */
+
+.email-masthead {
+  padding: 25px 0;
+  text-align: center;
+}
+
+.email-masthead_logo {
+  width: 94px;
+}
+
+.email-masthead_name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #A8AAAF;
+  text-decoration: none;
+  text-shadow: 0 1px 0 white;
+}
+/* Body ------------------------------ */
+
+.email-body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  -premailer-width: 100%;
+  -premailer-cellpadding: 0;
+  -premailer-cellspacing: 0;
+}
+
+.email-body_inner {
+  width: 570px;
+  margin: 0 auto;
+  padding: 0;
+  -premailer-width: 570px;
+  -premailer-cellpadding: 0;
+  -premailer-cellspacing: 0;
+  background-color: #FFFFFF;
+}
+
+
+.body-action {
+  width: 100%;
+  margin: 30px auto;
+  padding: 0;
+  -premailer-width: 100%;
+  -premailer-cellpadding: 0;
+  -premailer-cellspacing: 0;
+  text-align: center;
+}
+
+
+.content-cell {
+  padding: 45px;
+}

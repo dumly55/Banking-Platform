@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+}
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, caption {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+}
+
+body {
+    background: url(calm.avif);
+    background-repeat: none;
+    background-size: cover;
+}
+
+h1 {
+    padding: 0;
+    margin: 0px;
+    font-size: 15px;
+    background: navy;
+    padding: 15px 40px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+table {
+    background: white;
+    margin: auto;
+}
+
+table caption {
+    border: 1px solid black;
+    background: white;
+}
+
+table, th, td {
+    border: 1px solid black;
+    text-align: center;
+}
+
+table img {
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+}
+
+.log {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.8);
+    background: navy;
+    padding: 15px 40px;
+    border-radius: 4px;
+    font-weight: normal;
+    text-transform: uppercase;
+    transition: all 0.2s ease-in-out;
+    top: 0px;
+}
+
+.logbutton:hover {
+    color: rgba(255, 255, 255, 1);
+    box-shadow: 0 5px 15px rgba(145, 92, 182, .4);
+}
+
+.lbtn {
+    float: right;
+}
+
+.popup .overlay {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1;
+    display: none;
+    margin-top: 0px;
+}
+
+.popup .content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background-image: url(calm.avif);
+    width: 450px;
+    height: 310px;
+    z-index: 2;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.popup .close-btn {
+    cursor: pointer;
+    position: fixed;
+    right: 5px;
+    top: 5px;
+    width: 30px;
+    height: 30px;
+    color: white;
+    font-size: 25px;
+    font-weight: 600;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+}
+
+.popup.active .overlay {
+    position: fixed;
+    display: block;
+}
+
+.popup.active .content{
+    transition: all 300ms ease-in-out;
+    transform: translate(-50%, -50%) scale(1);
+}
