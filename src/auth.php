@@ -89,6 +89,13 @@ function redirect_if_logged_in(): void
     if (current_employee_id()) redirect('employee.php');
 }
 
+/** Checks a password against a stored hash, spending the same time when there is no account. */
+function password_matches(string $password, ?string $hash): bool
+{
+    static $dummy = '$2y$10$3bFfIJdY3EBqkbiZtpNaoexw6g4QXN9NKbwNjs9SNWFxI70UalLmu'; // hash of a random string
+    return password_verify($password, $hash ?? $dummy) && $hash !== null;
+}
+
 // Password rules shared by customer and employee forms: 8+ characters with a letter and a number.
 function password_problem(string $password): ?string
 {

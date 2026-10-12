@@ -5,7 +5,7 @@ redirect_if_logged_in();
 if (is_post()) {
     verify_csrf();
     $user = db_one('SELECT id, email, password_hash FROM users WHERE username = ?', [input('username')]);
-    if (!$user || !password_verify($_POST['password'] ?? '', $user['password_hash'])) {
+    if (!password_matches($_POST['password'] ?? '', $user['password_hash'] ?? null)) {
         back_with('login.php', 'Incorrect username or password.');
     }
     mfa_start('user_login', $user['email'], ['user_id' => $user['id']]);

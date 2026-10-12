@@ -5,12 +5,11 @@ redirect_if_logged_in();
 if (is_post()) {
     verify_csrf();
     $employee = db_one('SELECT id, email, password_hash, status FROM employees WHERE id = ?', [input('employee_id')]);
-    if ($employee && $employee['status'] === 'Terminated') {
-        back_with('employee-login.php', 'Sorry. You are no longer with the company.');
-    }
-    if (!$employee || $employee['status'] !== 'Hired' || !password_verify($_POST['password'] ?? '', (string) $employee['password_hash'])) {
+    if (!password_matches($_POST['password'] ?? '', $employee['password_hash'] ?? null)) {
         back_with('employee-login.php', 'Incorrect employee ID or password.');
     }
+    // Only tell someone they were terminated once they've proven who they are.
+    if ($employee['status'] !== 'Hired') back_with('employee-login.php', 'Sorry. You are no longer with the company.');
     mfa_start('employee_login', $employee['email'], ['employee_id' => $employee['id']]);
     redirect('mfa.php');
 }

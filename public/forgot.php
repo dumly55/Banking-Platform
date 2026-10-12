@@ -14,8 +14,8 @@ if (is_post()) {
         : db_one('SELECT id, email, username FROM users WHERE email = ?', [$email]);
 
     if (input('action') === 'reset') {
-        if (!$account) back_with($self, 'No account is registered with that email.');
-        mfa_start($forEmployee ? 'reset_employee' : 'reset_user', $account['email'], ['id' => $account['id']]);
+        // Unknown emails get the same code screen (but no email), so this form can't be used to find customers.
+        mfa_start($forEmployee ? 'reset_employee' : 'reset_user', $account['email'] ?? null, ['id' => $account['id'] ?? null]);
         redirect('mfa.php');
     }
 
