@@ -14,6 +14,9 @@ require __DIR__ . '/validation.php';
 
 date_default_timezone_set(config('timezone'));
 
+// Never print function arguments (e.g. the DB password) in error traces.
+ini_set('zend.exception_ignore_args', '1');
+
 if (config('env') === 'production') {
     ini_set('display_errors', '0');
 }

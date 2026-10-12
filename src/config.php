@@ -19,7 +19,8 @@ function env(string $key, ?string $default = null): ?string
 }
 
 return [
-    'env'      => env('APP_ENV', 'development'),
+    // Defaults to production so a server without a .env never shows errors or on-screen MFA codes.
+    'env'      => env('APP_ENV', 'production'),
     'url'      => rtrim(env('APP_URL', 'http://localhost:8000'), '/'),
     'timezone' => env('APP_TIMEZONE', 'America/Los_Angeles'),
     'session_timeout' => (int) env('SESSION_TIMEOUT', '600'),

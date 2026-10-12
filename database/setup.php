@@ -13,6 +13,12 @@ $fresh = in_array('--fresh', $argv, true);
 $seed = in_array('--seed', $argv, true) || $fresh;
 $c = config('db');
 
+// Demo accounts have published passwords, so they must never exist on a live server.
+if ($seed && config('env') === 'production') {
+    exit("Refusing to load demo data while APP_ENV=production (demo passwords are public).\n"
+        . "Run without --seed / --fresh, or set APP_ENV=development for a local copy.\n");
+}
+
 $server = new PDO("mysql:host={$c['host']};port={$c['port']};charset=utf8mb4", $c['user'], $c['pass'], [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 ]);
