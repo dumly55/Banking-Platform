@@ -48,8 +48,9 @@ table, th, td {
 
 table img {
     width: 200px;
-    height: 200px;
-    cursor: pointer;
+    height: auto;
+    margin: 6px;
+    cursor: zoom-in;
 }
 
 .log {
@@ -146,6 +147,7 @@ table { border-collapse: collapse; max-width: 95vw; }
 th, td { padding: 6px 12px; }
 td.details { text-align: left; }
 td.question { text-align: left; max-width: 420px; white-space: normal; }
+table.inquiries { width: 95vw; }
 table caption { padding: 6px; font-weight: bold; }
 .popup .content h2 { font-size: 20px; font-weight: bold; }
 .popup .content input, .popup .content select { margin: 6px 0; padding: 4px; }
