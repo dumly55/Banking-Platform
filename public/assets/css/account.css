@@ -14,7 +14,7 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 }
 
 body {
-    background-image: url(card_background.jpeg);
+    background-image: url(../img/card_background.jpeg);
     background-size: cover;
 }
 
@@ -79,7 +79,7 @@ h2 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0);
-    background-image: url(card_background.jpeg);
+    background-image: url(../img/card_background.jpeg);
     width: 450px;
     height: 310px;
     z-index: 2;

@@ -12,7 +12,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url('PiggyBank.gif') no-repeat;
+    background: url('../img/piggy_bank.webp') no-repeat;
     background-position: center;
     background-size: cover;
 }

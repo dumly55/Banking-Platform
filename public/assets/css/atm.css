@@ -38,7 +38,7 @@ h1 {
 }
 
 body {
-  background-image: url(card_background.jpeg);
+  background-image: url(../img/card_background.jpeg);
   height: 100vh;
   background-size: cover;
 }
@@ -203,7 +203,7 @@ i {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0);
-  background-image: url(card_background.jpeg);
+  background-image: url(../img/card_background.jpeg);
   width: 450px;
   height: 310px;
   z-index: 2;
