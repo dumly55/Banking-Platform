@@ -15,7 +15,7 @@ CREATE TABLE users (
     last_name       VARCHAR(50)  NOT NULL,
     email           VARCHAR(254) NOT NULL UNIQUE,
     phone           CHAR(10)     NOT NULL UNIQUE,
-    ssn             CHAR(9)      NOT NULL UNIQUE,
+    ssn_hash        CHAR(64)     NOT NULL UNIQUE,         -- HMAC of the SSN (see ssn_fingerprint)
     license_state   CHAR(2)      NOT NULL,
     license_number  VARCHAR(20)  NOT NULL,
     address1        VARCHAR(100) NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE employees (
     first_name      VARCHAR(50)   NULL,
     last_name       VARCHAR(50)   NULL,
     phone           CHAR(10)      NULL UNIQUE,
-    ssn             CHAR(9)       NULL UNIQUE,
+    ssn_hash        CHAR(64)      NULL UNIQUE,
     license_state   CHAR(2)       NULL,
     license_number  VARCHAR(20)   NULL,
     address1        VARCHAR(100)  NULL,

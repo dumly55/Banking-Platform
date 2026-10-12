@@ -17,6 +17,17 @@ const PERSON_RULES = [
     'zip'      => ['/^\d{5}$/', 'Zip code must be 5 digits.'],
 ];
 
+/**
+ * SSNs are only needed to stop duplicate sign-ups, so only a keyed hash is stored.
+ * Without the key, the 1-billion possible SSNs can't be brute-forced back from it.
+ */
+function ssn_fingerprint(string $ssn): string
+{
+    $key = config('key');
+    if (!$key) throw new RuntimeException('APP_KEY is not set. Run: php database/setup.php');
+    return hash_hmac('sha256', $ssn, $key);
+}
+
 /** Reads the given fields from POST, trimmed. */
 function collect_input(array $fields): array
 {

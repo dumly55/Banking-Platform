@@ -23,6 +23,8 @@ return [
     'env'      => env('APP_ENV', 'production'),
     'url'      => rtrim(env('APP_URL', 'http://localhost:8000'), '/'),
     'timezone' => env('APP_TIMEZONE', 'America/Los_Angeles'),
+    // Secret used to fingerprint SSNs. database/setup.php generates it; changing it breaks duplicate checks.
+    'key'      => env('APP_KEY'),
     'session_timeout' => (int) env('SESSION_TIMEOUT', '600'),
 
     'db' => [

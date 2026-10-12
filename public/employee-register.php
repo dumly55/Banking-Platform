@@ -29,19 +29,19 @@ if (is_post() && $signupId) {
     $errors = [...person_errors($old), ...password_errors()];
 
     if (!$errors && db_value(
-        'SELECT 1 FROM employees WHERE id <> ? AND (ssn = ? OR phone = ? OR (license_state = ? AND license_number = ?))',
-        [$signupId, $old['ssn'], $old['phone'], $old['lstate'], $old['license']]
+        'SELECT 1 FROM employees WHERE id <> ? AND (ssn_hash = ? OR phone = ? OR (license_state = ? AND license_number = ?))',
+        [$signupId, ssn_fingerprint($old['ssn']), $old['phone'], $old['lstate'], $old['license']]
     )) {
         $errors[] = 'Registration unsuccessful: those details belong to another employee.';
     }
 
     if (!$errors) {
         db_exec(
-            "UPDATE employees SET password_hash = ?, status = 'Hired', first_name = ?, last_name = ?, phone = ?, ssn = ?,
+            "UPDATE employees SET password_hash = ?, status = 'Hired', first_name = ?, last_name = ?, phone = ?, ssn_hash = ?,
                 license_state = ?, license_number = ?, address1 = ?, address2 = ?, city = ?, state = ?, zip = ?
              WHERE id = ? AND status = 'Pending'",
             [
-                password_hash($_POST['password'], PASSWORD_DEFAULT), $old['first'], $old['last'], $old['phone'], $old['ssn'],
+                password_hash($_POST['password'], PASSWORD_DEFAULT), $old['first'], $old['last'], $old['phone'], ssn_fingerprint($old['ssn']),
                 $old['lstate'], $old['license'], $old['address'], $old['address2'] ?: null, $old['city'], $old['state'], $old['zip'],
                 $signupId,
             ]

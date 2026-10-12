@@ -13,6 +13,17 @@ $fresh = in_array('--fresh', $argv, true);
 $seed = in_array('--seed', $argv, true) || $fresh;
 $c = config('db');
 
+// Generate the secret used to fingerprint SSNs (only the key is written, nothing else in .env changes).
+if (!config('key')) {
+    $key = bin2hex(random_bytes(32));
+    file_put_contents(dirname(__DIR__) . '/.env', "
+APP_KEY=$key
+", FILE_APPEND | LOCK_EX);
+    $GLOBALS['config']['key'] = $key;
+    echo "Generated APP_KEY in .env (keep it secret and keep it stable).
+";
+}
+
 // Demo accounts have published passwords, so they must never exist on a live server.
 if ($seed && config('env') === 'production') {
     exit("Refusing to load demo data while APP_ENV=production (demo passwords are public).\n"
@@ -49,10 +60,10 @@ $employees = [
 ];
 foreach ($employees as [$id, $email, $tier, $manager, $first, $last, $phone, $ssn, $license]) {
     db_exec(
-        "INSERT INTO employees (id, email, password_hash, status, tier, manager_id, first_name, last_name, phone, ssn,
+        "INSERT INTO employees (id, email, password_hash, status, tier, manager_id, first_name, last_name, phone, ssn_hash,
                                 license_state, license_number, address1, city, state, zip)
          VALUES (?, ?, ?, 'Hired', ?, ?, ?, ?, ?, ?, 'CA', ?, '1 Washington Sq', 'San Jose', 'CA', '95192')",
-        [$id, $email, $password, $tier, $manager, $first, $last, $phone, $ssn, $license]
+        [$id, $email, $password, $tier, $manager, $first, $last, $phone, ssn_fingerprint($ssn), $license]
     );
 }
 // A pending offer, so the Terminate list and new-hire registration have something to show.
@@ -66,10 +77,10 @@ $customers = [
 $userIds = [];
 foreach ($customers as [$username, $pin, $first, $last, $email, $phone, $ssn, $license]) {
     db_exec(
-        "INSERT INTO users (username, password_hash, pin_hash, first_name, last_name, email, phone, ssn,
+        "INSERT INTO users (username, password_hash, pin_hash, first_name, last_name, email, phone, ssn_hash,
                             license_state, license_number, address1, city, state, zip)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'CA', ?, '100 Market St', 'San Jose', 'CA', '95113')",
-        [$username, $password, password_hash($pin, PASSWORD_DEFAULT), $first, $last, $email, $phone, $ssn, $license]
+        [$username, $password, password_hash($pin, PASSWORD_DEFAULT), $first, $last, $email, $phone, ssn_fingerprint($ssn), $license]
     );
     $userIds[$username] = (int) db()->lastInsertId();
 }

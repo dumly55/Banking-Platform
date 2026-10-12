@@ -21,15 +21,16 @@ if (is_post()) {
     if ($pin !== ($_POST['cpin'] ?? '')) $errors[] = 'PINs do not match.';
 
     if (!$errors) {
+        $ssnHash = ssn_fingerprint($old['ssn']);
         // One query for every uniqueness check instead of five.
         $taken = db_one(
             'SELECT
                 MAX(username = ?) AS username, MAX(email = ?) AS email, MAX(phone = ?) AS phone,
-                MAX(ssn = ? OR (license_state = ? AND license_number = ?)) AS identity
-             FROM users WHERE username = ? OR email = ? OR phone = ? OR ssn = ? OR (license_state = ? AND license_number = ?)',
+                MAX(ssn_hash = ? OR (license_state = ? AND license_number = ?)) AS identity
+             FROM users WHERE username = ? OR email = ? OR phone = ? OR ssn_hash = ? OR (license_state = ? AND license_number = ?)',
             array_merge(
-                [$old['username'], $old['email'], $old['phone'], $old['ssn'], $old['lstate'], $old['license']],
-                [$old['username'], $old['email'], $old['phone'], $old['ssn'], $old['lstate'], $old['license']]
+                [$old['username'], $old['email'], $old['phone'], $ssnHash, $old['lstate'], $old['license']],
+                [$old['username'], $old['email'], $old['phone'], $ssnHash, $old['lstate'], $old['license']]
             )
         );
         if ($taken['username']) $errors[] = 'That username is already taken.';
@@ -41,12 +42,12 @@ if (is_post()) {
     if (!$errors) {
         try {
             db_exec(
-                'INSERT INTO users (username, password_hash, pin_hash, first_name, last_name, email, phone, ssn,
+                'INSERT INTO users (username, password_hash, pin_hash, first_name, last_name, email, phone, ssn_hash,
                                     license_state, license_number, address1, address2, city, state, zip)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [
                     $old['username'], password_hash($password, PASSWORD_DEFAULT), password_hash($pin, PASSWORD_DEFAULT),
-                    $old['first'], $old['last'], $old['email'], $old['phone'], $old['ssn'],
+                    $old['first'], $old['last'], $old['email'], $old['phone'], $ssnHash,
                     $old['lstate'], $old['license'], $old['address'], $old['address2'] ?: null,
                     $old['city'], $old['state'], $old['zip'],
                 ]
