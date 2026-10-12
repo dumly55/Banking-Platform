@@ -47,7 +47,7 @@ php database/setup.php --seed     # creates the database, tables and demo data
 php -S localhost:8000 -t public   # open http://localhost:8000
 ```
 
-**Using XAMPP/WAMP/MAMP?** Clone into `htdocs` and open `http://localhost/Banking-Platform/public/`. All links are relative, so the app also works from a subfolder. Run the setup command with XAMPP's PHP, for example `C:\xampp\php\php.exe database\setup.php --seed`.
+**Using XAMPP/WAMP/MAMP?** Clone into `htdocs` and open `http://localhost/Banking-Platform/public/`. All links are relative, so the app also works from a subfolder. The included `.htaccess` files make Apache refuse everything outside `public/` (`.env`, source, uploads, `.git`), which works with XAMPP's default settings. Run the setup command with XAMPP's PHP, for example `C:\xampp\php\php.exe database\setup.php --seed`.
 
 `setup.php` won't overwrite a database that already has tables. To wipe and recreate everything, run `php database/setup.php --fresh`.
 
@@ -68,7 +68,14 @@ Every demo account uses the password **`Password123`**.
 
 If `SMTP_HOST` is empty (the default), emails are not sent. They are appended to `storage/logs/mail.log` instead, and the verification page shows the code so you can log in locally without a mail server.
 
-To send real email, fill in the SMTP settings in `.env`. For Gmail, use `smtp.gmail.com`, port `587`, and an [App Password](https://support.google.com/accounts/answer/185833). Set `APP_ENV=production` when you deploy so codes and error details are never shown on screen.
+To send real email, fill in the SMTP settings in `.env`. For Gmail, use `smtp.gmail.com`, port `587`, and an [App Password](https://support.google.com/accounts/answer/185833). Never commit `.env`. It's in `.gitignore`.
+
+### Deploying
+
+- Point the web server's document root at `public/`, not the repository folder.
+- Leave out `APP_ENV` or set it to `production`. Without a `.env` the app runs in production mode, which never shows error details or login codes on screen.
+- Don't load demo data. `setup.php` refuses `--seed` and `--fresh` in production, because the demo passwords are public.
+- `setup.php` generates `APP_KEY` in `.env`. Keep it secret and back it up. Changing it stops the app from detecting duplicate SSNs.
 
 ## Project structure
 
@@ -103,8 +110,12 @@ tests/smoke.sh     End-to-end test suite
 - Employee permissions (tier, manager relationship, employment status) are checked on the server for every request
 - Check images are stored outside the web root, validated by file content rather than extension, given random names, and served only to employees
 - Verification codes expire after 10 minutes and allow 5 attempts. Five wrong ATM PINs end the session
+- SSNs are never stored. Only a keyed hash (HMAC with `APP_KEY`) is kept, which is enough to block duplicate sign-ups
+- Login, password reset and username recovery respond the same whether or not an account exists, so they can't be used to find out who banks here
+- Statements show only the last 4 digits of the other account in a transfer
+- Secrets live in `.env` (git-ignored). On Apache, `.htaccess` blocks every file outside `public/`
 
-Known limits for a demo project: SSNs are stored in plain text so duplicates can be detected, and there is no rate limiting on the login form.
+Known limits for a demo project: there is no rate limiting on login, and names, addresses and license numbers are stored as plain text.
 
 ## Testing
 

@@ -2,3 +2,8 @@
 storage/uploads/deposits/*
 storage/logs/*
 !storage/**/.gitkeep
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
