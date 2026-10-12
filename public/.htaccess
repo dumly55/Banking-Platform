@@ -1,0 +1,2 @@
+# Re-allow the web root (the parent folder's .htaccess denies everything).
+Require all granted
