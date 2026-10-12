@@ -113,8 +113,9 @@ function transfer(int $userId, string $from, string $to, string $amount): ?strin
 
         $outId = unique_number('transactions', 'id', 12);
         $inId = unique_number('transactions', 'id', 12);
-        record_transaction($from, 'Transfer Out', 'Processed', "-$amount", $sender['balance'], "Transfer to account $to", $inId, $outId);
-        record_transaction($to, 'Transfer In', 'Processed', $amount, $recipient['balance'], "Transfer from account $from", $outId, $inId);
+        // Statements show only the last 4 digits of the other account, like a real bank.
+        record_transaction($from, 'Transfer Out', 'Processed', "-$amount", $sender['balance'], 'Transfer to account ending ' . substr($to, -4), $inId, $outId);
+        record_transaction($to, 'Transfer In', 'Processed', $amount, $recipient['balance'], 'Transfer from account ending ' . substr($from, -4), $outId, $inId);
         return null;
     });
 }

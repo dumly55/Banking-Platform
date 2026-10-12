@@ -14,11 +14,13 @@ if (is_post()) {
     $ticket = unique_number('support_tickets', 'id', 10);
     db_exec('INSERT INTO support_tickets (id, name, email, question) VALUES (?, ?, ?, ?)', [$ticket, $name, $email, $question]);
 
+    // Only fixed text goes out: echoing the visitor's name/question would let anyone send
+    // their own message to any address from the bank's mail account.
     send_mail(
         $email,
         "Ticket #$ticket (Bank of the Future Support Team)",
-        "Ticket #$ticket\n\nThank you for contacting us. We will get back to you as soon as we can.\n\n"
-        . "Sincerely,\nBank of the Future Team\n\nName: $name\nEmail: $email\n\nQuestion:\n$question"
+        "We received your question and created ticket #$ticket. We will get back to you as soon as we can.\n\n"
+        . "If you did not contact Bank of the Future, you can ignore this email.\n\nSincerely,\nBank of the Future Team"
     );
     back_with('contact.php', "Ticket #$ticket submitted. A confirmation was sent to your email.", 'success');
 }
