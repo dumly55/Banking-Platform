@@ -73,6 +73,27 @@ Defined in [sql/views.sql](sql/views.sql). Each view is exported to `data/tablea
 
 "Active" means the customer moved money themselves: a deposit, a withdrawal or a transfer out. Interest and incoming transfers don't count.
 
+## SQL analysis
+
+[sql/analysis/](sql/analysis/) holds eight queries, each answering one business question. The answer for the default build is written at the top of each file. Run one in pgAdmin's Query Tool, or with psql:
+
+```powershell
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -h localhost -d bank -f sql\analysis\06_review_turnaround.sql
+```
+
+| Query | Question | Answer (default build) |
+|---|---|---|
+| 01 monthly growth | How fast is the bank growing? | Money held went from $45K to $25.4M in two years. Signups rose from 35 to about 120 a month. |
+| 02 money flows | Where does the money come from and go? | About 60 cents of every deposited dollar leaves as ATM cash. |
+| 03 deposit concentration | How concentrated are deposits? | The top 10% of customers hold 40% of the money. |
+| 04 time to first deposit | How long until a new customer has money in? | A median of 8 days. 1 in 10 waits two weeks. |
+| 05 dormant money | How much sits with customers who left? | $2.4M (9.5% of all money), with 261 dormant customers. |
+| 06 review turnaround | How long do check reviews take? | About 9 hours on weekdays, but 46 hours for checks sent on Saturday. |
+| 07 denials by check size | Are large checks riskier? | Checks of $2,500 or more are denied about 4 times as often. |
+| 08 reviewer denials | Do some reviewers deny more than others? | Yes: one teller denies 5.1% and another 1.6%, far beyond chance. |
+
+These patterns come from rules built into the simulation (see [What's simulated](#whats-simulated)). The queries show how you'd find them in real data.
+
 ## Tableau dashboards
 
 ### Connect the data
@@ -129,5 +150,6 @@ test_build.py      Ledger and view checks
 requirements.txt   Python dependency: psycopg, the PostgreSQL driver
 sql/schema.sql     Tables
 sql/views.sql      Analysis views (the Tableau data sources)
+sql/analysis/      Business-question queries, with answers in each file's header
 data/tableau/      Generated CSVs (git-ignored)
 ```
