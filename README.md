@@ -1,8 +1,10 @@
 # Bank of the Future
 
-An online banking web app built with PHP and MySQL. Customers can open checking and savings accounts, move money, use a virtual ATM and deposit checks by photo. Employees get a back office for reviewing deposits, answering support tickets, and hiring or terminating staff.
+An online banking web app built with Python (Flask) and MySQL. Customers can open checking and savings accounts, move money, use a virtual ATM and deposit checks by photo. Employees get a back office for reviewing deposits, answering support tickets, and hiring or terminating staff.
 
 > This is an educational project, not a real bank. Don't enter real personal information.
+
+The app was first written in PHP and later ported to Python, keeping the same pages, rules and database. The PHP version is in the git history.
 
 ![Customer dashboard](docs/screenshots/dashboard.webp)
 
@@ -37,19 +39,22 @@ An online banking web app built with PHP and MySQL. Customers can open checking 
 
 ## Quick start
 
-**Requirements:** PHP 8.1+ (with `pdo_mysql` and `fileinfo`) and MySQL 8 or MariaDB 10.5+. PHPMailer is already included in `vendor/`, so Composer is optional.
+**Requirements:** Python 3.9+ (tested on 3.12) and MySQL 8 or MariaDB 10.5+.
 
 ```bash
 git clone https://github.com/dumly55/Banking-Platform.git
 cd Banking-Platform
-cp .env.example .env              # then set DB_USER / DB_PASS if yours differ
-php database/setup.php --seed     # creates the database, tables and demo data
-php -S localhost:8000 -t public   # open http://localhost:8000
+python -m venv .venv
+.venv\Scripts\activate                 # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env                   # Windows: copy .env.example .env. Then set DB_USER / DB_PASS
+flask --app bank setup-db --seed       # creates the database, tables and demo data
+flask --app bank run --port 8000       # open http://localhost:8000
 ```
 
-**Using XAMPP/WAMP/MAMP?** Clone into `htdocs` and open `http://localhost/Banking-Platform/public/`. All links are relative, so the app also works from a subfolder. The included `.htaccess` files make Apache refuse everything outside `public/` (`.env`, source, uploads, `.git`), which works with XAMPP's default settings. Run the setup command with XAMPP's PHP, for example `C:\xampp\php\php.exe database\setup.php --seed`.
+Add `--debug` to the last command while you work on the code, so the server reloads when files change.
 
-`setup.php` won't overwrite a database that already has tables. To wipe and recreate everything, run `php database/setup.php --fresh`.
+`setup-db` won't overwrite a database that already has tables. To wipe and recreate everything, run `flask --app bank setup-db --fresh`.
 
 ### Demo accounts
 
@@ -72,48 +77,52 @@ To send real email, fill in the SMTP settings in `.env`. For Gmail, use `smtp.gm
 
 ### Deploying
 
-- Point the web server's document root at `public/`, not the repository folder.
+- Don't use `flask run` in production. Use a production server, for example `pip install waitress` then `waitress-serve --port 8000 --call bank:create_app`, or `gunicorn 'bank:create_app()'` on Linux, behind a web server that handles HTTPS.
+- Set `APP_URL` to the site's `https://` address. Session cookies are then marked `Secure`, and emailed links point to the right place.
 - Leave out `APP_ENV` or set it to `production`. Without a `.env` the app runs in production mode, which never shows error details or login codes on screen.
-- Don't load demo data. `setup.php` refuses `--seed` and `--fresh` in production, because the demo passwords are public.
-- `setup.php` generates `APP_KEY` in `.env`. Keep it secret and back it up. Changing it stops the app from detecting duplicate SSNs.
+- Don't load demo data. `setup-db` refuses `--seed` and `--fresh` in production, because the demo passwords are public.
+- `setup-db` generates `APP_KEY` in `.env`. Keep it secret and back it up. Changing it stops the app from detecting duplicate SSNs.
+- `storage/` must be writable: it holds sessions, uploaded check images and the mail log.
 
 ## Project structure
 
 ```
-public/            Web root: the only folder the web server should expose
-  *.php            One file per page. Each handles its own form submission
-  *.html           Static marketing pages
-  assets/          CSS, JS and images
-src/               Application code (not web-accessible)
-  bootstrap.php    Loaded by every page: config, session, security headers
-  config.php       Reads settings from .env / environment variables
-  db.php           PDO connection and query helpers
-  auth.php         Sessions, login checks, inactivity timeout
-  mfa.php          Emailed one-time codes
-  banking.php      Accounts, transfers, withdrawals, deposits, interest
-  validation.php   Form validation shared by customer and employee sign-up
-  mail.php         PHPMailer wrapper (or log file in development)
-  views/           Shared partials: navigation, flash messages, timeout dialog
-database/
-  schema.sql       Table definitions
-  setup.php        Creates the database and optionally seeds demo data
-storage/           Uploaded check images and the mail log (git-ignored)
-tests/smoke.sh     End-to-end test suite
+bank/                  The Flask app
+  __init__.py          App factory: sessions, CSRF check, security headers, template filters
+  config.py            Reads settings from .env / environment variables
+  db.py                MySQL connection and query helpers
+  auth.py              Passwords, sessions, login checks, inactivity timeout
+  mfa.py               Emailed one-time codes
+  banking.py           Accounts, transfers, withdrawals, deposits, interest
+  validation.py        Form validation shared by customer and employee sign-up
+  mail.py              SMTP sending (or a log file in development)
+  helpers.py           Money formatting, form input, redirects, CSRF tokens
+  public.py            Marketing pages and the contact form
+  access.py            Login, verification codes, registration, password reset, logout
+  customer.py          Dashboard, accounts, transfers, ATM, check deposits
+  staff.py             Employee login, hiring, deposit review, support tickets
+  setup.py             The `flask setup-db` command and demo data
+  templates/           One Jinja template per page, plus shared layout and nav
+  static/              CSS, JavaScript and images, served at /assets
+database/schema.sql    Table definitions
+storage/               Sessions, uploaded check images and the mail log (git-ignored)
+tests/smoke.sh         End-to-end test suite
 ```
 
 ## Security
 
-- All SQL uses prepared statements
-- Passwords and PINs are hashed with `password_hash`
-- Every form has a CSRF token. Session cookies are `HttpOnly` and `SameSite=Lax`
+- All SQL uses parameterized queries
+- Passwords and PINs are hashed with bcrypt. Hashes created by the earlier PHP version still work
+- Sessions are stored on the server. The browser only gets a random session ID, which changes at login. Cookies are `HttpOnly`, `SameSite=Lax`, and `Secure` when `APP_URL` uses HTTPS
+- Every form has a CSRF token
 - Customers can only see and move money from their own accounts. All balance changes happen inside database transactions with row locks, and the database rejects negative balances
 - Employee permissions (tier, manager relationship, employment status) are checked on the server for every request
-- Check images are stored outside the web root, validated by file content rather than extension, given random names, and served only to employees
+- Check images are stored outside the web folder, validated by file content rather than extension, given random names, and served only to employees, never cached by shared caches
 - Verification codes expire after 10 minutes and allow 5 attempts. Five wrong ATM PINs end the session
 - SSNs are never stored. Only a keyed hash (HMAC with `APP_KEY`) is kept, which is enough to block duplicate sign-ups
 - Login, password reset and username recovery respond the same whether or not an account exists, so they can't be used to find out who banks here
 - Statements show only the last 4 digits of the other account in a transfer
-- Secrets live in `.env` (git-ignored). On Apache, `.htaccess` blocks every file outside `public/`
+- Secrets live in `.env` (git-ignored)
 
 Known limits for a demo project: there is no rate limiting on login, and names, addresses and license numbers are stored as plain text.
 
@@ -122,11 +131,13 @@ Known limits for a demo project: there is no rate limiting on login, and names, 
 With the app running on seeded data and `SMTP_HOST` empty:
 
 ```bash
-bash tests/smoke.sh                      # or BASE_URL=http://localhost/Banking-Platform/public bash tests/smoke.sh
+flask --app bank setup-db --fresh
+flask --app bank run --port 8000       # in a second terminal
+bash tests/smoke.sh                    # or BASE_URL=http://localhost:5000 bash tests/smoke.sh
 ```
 
-The suite needs `bash`, `curl` and `bc`. It makes 72 checks covering login and MFA, transfers, ATM withdrawals, deposits and their review, registration, hiring and termination, support tickets and password reset. It also checks that the access-control rules hold, for example that you can't transfer out of someone else's account. The suite changes demo data (for example, `jdoe`'s password becomes `NewPass456`), so run `php database/setup.php --fresh` afterwards for a clean demo.
+The suite needs `bash` and `curl`, which Git Bash on Windows includes. It makes 72 checks covering login and MFA, transfers, ATM withdrawals, deposits and their review, registration, hiring and termination, support tickets and password reset. It also checks that the access-control rules hold, for example that you can't transfer out of someone else's account. The suite changes demo data (for example, `jdoe`'s password becomes `NewPass456`), so run `flask --app bank setup-db --fresh` afterwards for a clean demo.
 
 ## Tech stack
 
-PHP 8, MySQL/MariaDB (PDO), PHPMailer, and plain HTML/CSS/JavaScript with no front-end build step.
+Python 3 with Flask, Jinja2 templates, Flask-Session (server-side sessions), PyMySQL, bcrypt and MySQL/MariaDB, plus plain HTML/CSS/JavaScript with no front-end build step.

@@ -11,7 +11,7 @@
 
     function keepAlive() {
         lastPing = Date.now();
-        fetch('keepalive.php', { method: 'POST', credentials: 'same-origin' });
+        fetch('keepalive', { method: 'POST', credentials: 'same-origin' });
     }
 
     function onActivity() {
@@ -33,7 +33,7 @@
         idleSeconds++;
         const left = LOGOUT_AFTER - idleSeconds;
         if (left <= 0) {
-            window.location.href = 'logout.php';
+            window.location.href = 'logout';
         } else if (idleSeconds >= WARN_AFTER) {
             modal.classList.add('open');
             countdown.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;

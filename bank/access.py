@@ -203,7 +203,6 @@ def mfa():
 
 
 @bp.route('/logout')
-@bp.route('/logout.php')  # shortcut: session-timeout.js still calls the PHP name; renamed when PHP is removed
 def logout():
     was_employee = bool(session.get('employee_id')) or (session.get('mfa') or {}).get('purpose') == 'employee_login'
     was_logged_in = bool(session.get('employee_id') or session.get('user_id'))
@@ -212,7 +211,6 @@ def logout():
 
 
 @bp.route('/keepalive', methods=['POST'])
-@bp.route('/keepalive.php', methods=['POST'])  # shortcut: as above
 def keepalive():
     """Pinged by session-timeout.js while the user is active, to refresh the server-side inactivity timer."""
     require_employee() if session.get('employee_id') else require_user()

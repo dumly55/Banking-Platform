@@ -1,3 +1,0 @@
-# Only public/ is meant to be served. When this folder sits inside a web root
-# (e.g. XAMPP's htdocs), this keeps .env, src/, storage/, database/, vendor/ and .git private.
-Require all denied

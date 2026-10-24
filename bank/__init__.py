@@ -18,8 +18,8 @@ mimetypes.add_type('image/avif', '.avif')
 
 
 def create_app():
-    # The original app's CSS, JavaScript and images, served at /assets as before.
-    app = Flask(__name__, static_folder=str(config.ROOT / 'public' / 'assets'), static_url_path='/assets')
+    # CSS, JavaScript and images live in bank/static and are served at /assets, as in the PHP app.
+    app = Flask(__name__, static_url_path='/assets')
 
     # Sessions live on the server (storage/sessions), like PHP's: the browser only holds a random id,
     # never the data, because the session carries things like the pending MFA code's hash.
