@@ -1,7 +1,9 @@
-"""Simulates two years of Bank of the Future activity and loads it into SQLite.
+"""Simulates two years of Bank of the Future activity and loads it into PostgreSQL.
 
-    python build.py        writes data/bank.db (tables from sql/schema.sql, analysis views from sql/views.sql)
-                           and one CSV per view in data/tableau/ for Tableau to open
+    python build.py        rebuilds the database "bank" (tables from sql/schema.sql, analysis views from
+                           sql/views.sql) and writes one CSV per view to data/tableau/ for Tableau
+
+Connects to PostgreSQL on localhost as user postgres (or $PGUSER), with the password from $PGPASSWORD.
 
 The simulation keeps the original web app's rules (src/banking.php in the git history): check
 deposits post only once an employee approves them, withdrawals and transfers that would overdraw
@@ -11,16 +13,19 @@ import csv
 import heapq
 import itertools
 import math
+import os
 import random
-import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
+
+import psycopg
 
 ROOT = Path(__file__).parent
 START = datetime(2024, 10, 1)
 END = datetime(2026, 10, 1)   # exclusive: two full years
 YEAR = timedelta(days=365)
 CUSTOMERS = 2000
+VIEWS = ('v_transactions', 'v_monthly_balances', 'v_customers', 'v_cohort_retention')
 
 ACCOUNT_TYPES = {
     # type: (account number prefix, annual interest rate), as in the web app
@@ -180,32 +185,41 @@ def simulate(customers=CUSTOMERS, seed=42):
     return rows
 
 
-def build(path, **options):
-    """Writes a fresh SQLite database at path and returns an open connection to it."""
-    path.unlink(missing_ok=True)
-    db = sqlite3.connect(path)
-    db.executescript((ROOT / 'sql' / 'schema.sql').read_text())
-    for table, data in simulate(**options).items():
-        db.executemany(f'INSERT INTO {table} VALUES ({", ".join("?" * len(data[0]))})', data)
-    db.executescript((ROOT / 'sql' / 'views.sql').read_text())
+def connect(dbname, **options):
+    # Host, port and password come from the standard PG* environment variables, e.g. PGPASSWORD.
+    return psycopg.connect(dbname=dbname, user=os.environ.get('PGUSER', 'postgres'), **options)
+
+
+def build(dbname='bank', **options):
+    """Creates or rebuilds the database dbname with simulated data and returns an open connection to it."""
+    with connect('postgres', autocommit=True) as server:
+        if not server.execute('SELECT 1 FROM pg_database WHERE datname = %s', [dbname]).fetchone():
+            server.execute(f'CREATE DATABASE {dbname}')
+    db = connect(dbname)
+    db.execute((ROOT / 'sql' / 'schema.sql').read_text())
+    with db.cursor() as cursor:
+        for table, data in simulate(**options).items():
+            with cursor.copy(f'COPY {table} FROM STDIN') as copy:
+                for row in data:
+                    copy.write_row(row)
+    db.execute((ROOT / 'sql' / 'views.sql').read_text())
     db.commit()
     return db
 
 
 def export(db, folder):
-    """Writes each analysis view to folder/<name>.csv (Tableau Public can read CSV but not SQLite)."""
+    """Writes each analysis view to folder/<name>.csv (Tableau Public can read CSV but not a database server)."""
     folder.mkdir(parents=True, exist_ok=True)
-    for (view,) in db.execute("SELECT name FROM sqlite_master WHERE type = 'view'").fetchall():
+    for view in VIEWS:
         rows = db.execute(f'SELECT * FROM {view}')
         with open(folder / f'{view.removeprefix("v_")}.csv', 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(column[0] for column in rows.description)
+            writer.writerow(column.name for column in rows.description)
             writer.writerows(rows)
 
 
 if __name__ == '__main__':
-    (ROOT / 'data').mkdir(exist_ok=True)
-    db = build(ROOT / 'data' / 'bank.db')
+    db = build()
     for table in ('customers', 'accounts', 'transactions', 'check_deposits'):
         print(f'{table:>15}: {db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]:,}')
     export(db, ROOT / 'data' / 'tableau')
