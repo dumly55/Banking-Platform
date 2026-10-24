@@ -169,7 +169,7 @@ h1 {
 .chart-card figcaption p { margin: 2px 0 12px; color: var(--ink-2); font-size: 14px; }
 .chart-box { position: relative; height: 280px; }
 
-.chart-card.wide { margin-top: 16px; }
+.chart-card.wide, .chart-grid.spaced { margin-top: 16px; }
 
 /* Magnitude bins shared by the state map and the retention heatmap */
 .bin-1 { background: var(--seq-1); color: var(--seq-ink-1); }

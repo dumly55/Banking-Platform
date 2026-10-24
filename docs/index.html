@@ -123,6 +123,38 @@
                 <ul class="bin-legend" id="retention-legend"></ul>
             </figure>
         </section>
+
+        <section id="operations" class="section wrap">
+            <h2>Operations</h2>
+            <p class="section-lede">
+                Mobile check deposits wait for an employee to approve them, and reviewers only work weekdays from 9:00 to
+                17:00. A check sent on Saturday waits a median of <span data-fill="saturday_wait">…</span>. The outcome also
+                depends on who reviews it and on how big the check is.
+            </p>
+            <figure class="card chart-card" id="wait-figure">
+                <figcaption>
+                    <h3>How long a check waits for review</h3>
+                    <p>Median hours from sending a check to its review, by the day it was sent</p>
+                </figcaption>
+                <div class="chart-box"><canvas id="wait-chart" role="img" aria-label="Bar chart: checks sent Monday to Friday wait about 8 to 10 hours; Saturday checks wait 46 hours and Sunday checks 22 hours"></canvas></div>
+            </figure>
+            <div class="chart-grid spaced">
+                <figure class="card chart-card" id="reviewers-figure">
+                    <figcaption>
+                        <h3>Denial rate by reviewer</h3>
+                        <p>Share of checks each employee denied. The line is the team rate.</p>
+                    </figcaption>
+                    <div class="chart-box"><canvas id="reviewers-chart" role="img" aria-label="Bar chart: reviewer denial rates range from 1.6% to 5.1% against a team rate of 3.2%"></canvas></div>
+                </figure>
+                <figure class="card chart-card" id="sizes-figure">
+                    <figcaption>
+                        <h3>Denial rate by check size</h3>
+                        <p>Checks of $2,500 or more are denied about four times as often</p>
+                    </figcaption>
+                    <div class="chart-box"><canvas id="sizes-chart" role="img" aria-label="Bar chart: checks under $2,500 are denied about 2% of the time, checks of $2,500 or more 8 to 9%"></canvas></div>
+                </figure>
+            </div>
+        </section>
     </main>
 
     <footer class="footer">

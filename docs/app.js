@@ -50,6 +50,7 @@ function showKpis(data) {
     fill('dormant_money', money(dormant.money_held));
     fill('dormant_note', `${dormant.share_of_all_money_pct}% of all money, with ${dormant.customers} customers`);
     fill('top_decile_share', `${Math.round(data['03_deposit_concentration'][0].share_pct)}%`);
+    fill('saturday_wait', `${Math.round(data['06_review_turnaround'].find((row) => row.day_sent === 'Sat').median_hours)} hours`);
 }
 
 // The map and heatmap are plain HTML colored by CSS classes, so they follow light/dark mode on their own.
@@ -117,7 +118,37 @@ function addTables(data) {
     addTable('retention-figure', ['Signup month', 'Months later', 'Active', 'Share active'],
         data.cohort_retention.map((row) => [shortMonth(row.cohort), row.months_since_signup,
             `${row.active_customers} of ${row.cohort_size}`, percent(row.retention)]));
+    addTable('wait-figure', ['Day sent', 'Checks', 'Median hours', '90th percentile hours', 'Waited over 24 hours'],
+        data['06_review_turnaround'].map((row) => [row.day_sent, count(row.checks), row.median_hours, row.p90_hours, `${row.over_24h_pct}%`]));
+    addTable('reviewers-figure', ['Employee', 'Role', 'Reviewed', 'Denied', 'Denial rate', 'z-score vs team'],
+        data['08_reviewer_denials'].map((row) => [row.employee_id, roleName(row.reviewer_tier), count(row.reviewed), row.denied,
+            `${row.denial_pct}%`, row.z_score]));
+    addTable('sizes-figure', ['Check size', 'Checks', 'Denied', 'Denial rate', 'Denied dollars'],
+        data['07_denials_by_check_size'].map((row) => [row.check_size, count(row.checks), row.denied, `${row.denial_pct}%`, dollars(row.denied_amount)]));
 }
+
+const roleName = (tier) => ['', 'Teller', 'Manager', 'Admin'][tier];
+
+// Draws a labeled vertical reference line (e.g. the team average) across a chart.
+const referenceLine = {
+    id: 'reference',
+    afterDatasetsDraw(chart, _args, { value, label, color }) {
+        const { ctx, chartArea, scales } = chart;
+        const x = scales.x.getPixelForValue(value);
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, chartArea.top);
+        ctx.lineTo(x, chartArea.bottom);
+        ctx.stroke();
+        ctx.fillStyle = color;
+        ctx.font = `12px ${Chart.defaults.font.family}`;
+        ctx.textAlign = 'left';
+        ctx.fillText(label, x + 6, chartArea.bottom - 6);
+        ctx.restore();
+    },
+};
 
 const decileName = (decile) => (decile === 1 ? 'Top 10%' : decile === 10 ? 'Bottom 10%' : `${(decile - 1) * 10}-${decile * 10}%`);
 
@@ -199,6 +230,75 @@ function drawCharts(data) {
                     title: (items) => decileName(deciles[items[0].dataIndex].decile),
                     label: (item) => ` ${item.parsed.y}% of all money (${dollars(deciles[item.dataIndex].money_held)})`,
                 } },
+            },
+        },
+    });
+
+    // Weekday and weekend are separate series (with gaps) so the legend can name the orange bars.
+    const waits = data['06_review_turnaround'];
+    const isWeekend = (row) => row.day_number >= 6;
+    const waitBars = (label, keep, color) => ({
+        label, data: waits.map((row) => (keep(row) ? row.median_hours : null)), backgroundColor: color,
+        maxBarThickness: 24, borderRadius: 4, borderSkipped: 'start', skipNull: true,
+    });
+    make('wait-chart', {
+        type: 'bar',
+        data: {
+            labels: waits.map((row) => row.day_sent),
+            datasets: [waitBars('Weekday', (row) => !isWeekend(row), css('--series-1')), waitBars('Weekend', isWeekend, css('--series-2'))],
+        },
+        options: {
+            scales: { x: noGrid, y: { ...axis, beginAtZero: true, ticks: { callback: (v) => `${v}h`, maxTicksLimit: 6 } } },
+            plugins: {
+                legend: { position: 'top', align: 'start' },
+                tooltip: { callbacks: { label: (item) => {
+                    const row = waits[item.dataIndex];
+                    return [` Median ${row.median_hours} hours, 90th percentile ${row.p90_hours} hours`,
+                            ` ${row.over_24h_pct}% waited over a day (${count(row.checks)} checks)`];
+                } } },
+            },
+        },
+    });
+
+    const reviewers = [...data['08_reviewer_denials']].sort((a, b) => b.denial_pct - a.denial_pct);
+    make('reviewers-chart', {
+        type: 'bar',
+        plugins: [referenceLine],
+        data: {
+            labels: reviewers.map((row) => `Employee ${row.employee_id} (${roleName(row.reviewer_tier).toLowerCase()})`),
+            datasets: [{ label: 'Denial rate', data: reviewers.map((row) => row.denial_pct), backgroundColor: css('--series-1'),
+                         maxBarThickness: 24, borderRadius: 4, borderSkipped: 'start' }],
+        },
+        options: {
+            indexAxis: 'y',
+            scales: { x: { ...axis, beginAtZero: true, ticks: { callback: (v) => `${v}%`, maxTicksLimit: 6 } }, y: noGrid },
+            plugins: {
+                legend: { display: false },
+                reference: { value: reviewers[0].team_pct, label: `Team ${reviewers[0].team_pct.toFixed(1)}%`, color: css('--ink-2') },
+                tooltip: { callbacks: { label: (item) => {
+                    const row = reviewers[item.dataIndex];
+                    return [` Denied ${row.denied} of ${count(row.reviewed)} checks (${row.denial_pct}%)`, ` z-score vs team: ${row.z_score}`];
+                } } },
+            },
+        },
+    });
+
+    const sizes = data['07_denials_by_check_size'];
+    make('sizes-chart', {
+        type: 'bar',
+        data: {
+            labels: sizes.map((row) => row.check_size),
+            datasets: [{ label: 'Denial rate', data: sizes.map((row) => row.denial_pct), backgroundColor: css('--series-1'),
+                         maxBarThickness: 24, borderRadius: 4, borderSkipped: 'start' }],
+        },
+        options: {
+            scales: { x: noGrid, y: { ...axis, beginAtZero: true, ticks: { callback: (v) => `${v}%`, maxTicksLimit: 6 } } },
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: (item) => {
+                    const row = sizes[item.dataIndex];
+                    return [` ${row.denial_pct}% denied (${row.denied} of ${count(row.checks)})`, ` ${dollars(row.denied_amount)} in denied checks`];
+                } } },
             },
         },
     });
