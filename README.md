@@ -96,10 +96,11 @@ These patterns come from rules built into the simulation (see [What's simulated]
 
 ## Python analysis
 
-[analysis.ipynb](analysis.ipynb) goes a step beyond the SQL with pandas, matplotlib and scipy:
+[analysis.ipynb](analysis.ipynb) goes a step beyond the SQL with pandas, matplotlib, scipy and scikit-learn:
 
 - **Explore:** a Lorenz curve and Gini coefficient (0.55) show how unequal balances are, and a range chart shows how long check reviews take depending on the day a check is sent.
 - **Test (scipy):** a Mann-Whitney U test confirms that weekend checks wait longer (a 34-hour median against 9 hours, p < 0.001). Chi-square tests, run separately for small and large checks, confirm that reviewers' denial rates really differ (1.6% to 5.1%, p < 0.001). A chart shows each reviewer's 95% confidence interval.
+- **Predict (scikit-learn):** using features built in SQL from data before 1 July 2026, a logistic regression predicts which active customers go dormant over the next three months (ROC AUC 0.93). Permutation importance shows that only "days since last activity" matters, and that rule alone does as well as the model. The bank needs a weekly report of customers who have gone quiet, not a model. 53 customers are at risk today, and together they hold $702K.
 
 GitHub displays the notebook with its charts. To run it yourself, build the database first, then open the notebook in VS Code with the `.venv` interpreter selected, or run `jupyter notebook`.
 
@@ -156,7 +157,7 @@ Tableau Public publishes workbooks to your public profile. That's fine here beca
 ```
 build.py           Simulation, PostgreSQL load (COPY) and CSV export
 test_build.py      Ledger and view checks
-analysis.ipynb     Python analysis notebook (pandas, matplotlib, scipy)
+analysis.ipynb     Python analysis: exploration, statistical tests, dormancy model
 requirements.txt   Python dependency: psycopg, the PostgreSQL driver
 sql/schema.sql     Tables
 sql/views.sql      Analysis views (the Tableau data sources)
