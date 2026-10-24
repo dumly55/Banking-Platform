@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bank of the Future · Insights</title>
+    <meta name="description" content="Two years of simulated banking data analyzed with Python, PostgreSQL and Tableau: growth, customers and back-office operations.">
+    <link rel="icon" href="favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <header class="masthead">
+        <div class="wrap masthead-inner">
+            <a class="brand" href="#top">Bank of the Future <span class="brand-tag">Insights</span></a>
+            <nav class="nav" aria-label="Sections">
+                <a href="#growth">Growth</a>
+                <a href="#customers">Customers</a>
+                <a href="#operations">Operations</a>
+                <a href="#findings">Findings</a>
+                <a href="#method">Method</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="top">
+        <section class="hero wrap">
+            <p class="eyebrow">Two years of banking data, analyzed</p>
+            <h1>How the bank grew, who its customers are, and where its back office slows down</h1>
+            <p class="lede">
+                2,000 customers, 150,000 transactions and 37,000 check reviews, simulated from the rules of the
+                original Bank of the Future web app and analyzed with Python, PostgreSQL and Tableau.
+                Data as of <span data-fill="as_of">…</span>.
+            </p>
+            <p class="load-error" hidden>
+                The charts couldn't load their data. If you opened this file directly, serve the folder instead:
+                <code>python -m http.server -d docs</code>, then visit <code>http://localhost:8000</code>.
+            </p>
+
+            <div class="kpis">
+                <article class="card kpi">
+                    <h2 class="kpi-label">Money held</h2>
+                    <p class="kpi-value" data-fill="money_held">…</p>
+                    <p class="kpi-note" data-fill="money_note"></p>
+                </article>
+                <article class="card kpi">
+                    <h2 class="kpi-label">Customers</h2>
+                    <p class="kpi-value" data-fill="customers">…</p>
+                    <p class="kpi-note" data-fill="customers_note"></p>
+                </article>
+                <article class="card kpi">
+                    <h2 class="kpi-label">Active customers</h2>
+                    <p class="kpi-value" data-fill="active_share">…</p>
+                    <p class="kpi-note" data-fill="active_note"></p>
+                </article>
+                <article class="card kpi">
+                    <h2 class="kpi-label">Held by dormant customers</h2>
+                    <p class="kpi-value" data-fill="dormant_money">…</p>
+                    <p class="kpi-note" data-fill="dormant_note"></p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="wrap">
+            <p>Bank of the Future is fictional and every number here comes from a seeded simulation.</p>
+            <p>
+                <a href="https://github.com/dumly55/Banking-Platform">Source on GitHub</a> ·
+                <a href="https://github.com/dumly55/Banking-Platform/tree/main/sql/analysis">SQL queries</a> ·
+                <a href="https://github.com/dumly55/Banking-Platform/blob/main/analysis.ipynb">Python notebook</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
