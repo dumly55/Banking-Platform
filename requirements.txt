@@ -1,4 +1,5 @@
 psycopg[binary]>=3.2
 pandas>=2.2
 matplotlib>=3.8
+scipy>=1.11
 jupyter

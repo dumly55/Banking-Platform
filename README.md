@@ -96,9 +96,10 @@ These patterns come from rules built into the simulation (see [What's simulated]
 
 ## Python analysis
 
-[analysis.ipynb](analysis.ipynb) goes a step beyond the SQL with pandas and matplotlib:
+[analysis.ipynb](analysis.ipynb) goes a step beyond the SQL with pandas, matplotlib and scipy:
 
 - **Explore:** a Lorenz curve and Gini coefficient (0.55) show how unequal balances are, and a range chart shows how long check reviews take depending on the day a check is sent.
+- **Test (scipy):** a Mann-Whitney U test confirms that weekend checks wait longer (a 34-hour median against 9 hours, p < 0.001). Chi-square tests, run separately for small and large checks, confirm that reviewers' denial rates really differ (1.6% to 5.1%, p < 0.001). A chart shows each reviewer's 95% confidence interval.
 
 GitHub displays the notebook with its charts. To run it yourself, build the database first, then open the notebook in VS Code with the `.venv` interpreter selected, or run `jupyter notebook`.
 
@@ -155,7 +156,7 @@ Tableau Public publishes workbooks to your public profile. That's fine here beca
 ```
 build.py           Simulation, PostgreSQL load (COPY) and CSV export
 test_build.py      Ledger and view checks
-analysis.ipynb     Python analysis notebook (pandas, matplotlib)
+analysis.ipynb     Python analysis notebook (pandas, matplotlib, scipy)
 requirements.txt   Python dependency: psycopg, the PostgreSQL driver
 sql/schema.sql     Tables
 sql/views.sql      Analysis views (the Tableau data sources)
