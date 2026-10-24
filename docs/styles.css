@@ -225,6 +225,33 @@ h1 {
 .heatmap td { min-width: 22px; height: 18px; border-radius: 3px; }
 .heatmap tbody th { width: 1%; white-space: nowrap; }
 
+/* Findings and method */
+.findings, .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 16px;
+}
+.steps { margin: 0; padding: 0; list-style: none; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.finding, .step { display: flex; flex-direction: column; }
+.finding h3, .step h3 { margin: 0 0 8px; font-size: 18px; font-weight: 600; line-height: 1.3; }
+.finding p, .step p { margin: 0 0 12px; color: var(--ink-2); }
+.tag {
+    margin: 0 0 6px !important;
+    color: var(--series-1) !important;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.finding .action {
+    margin: auto 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    color: var(--ink);
+}
+.step a { margin-top: auto; font-weight: 500; }
+.note { max-width: 48em; margin: 24px 0 0; color: var(--ink-2); font-size: 14px; }
+
 /* "Show the data": the table view behind every chart */
 details { margin-top: 12px; font-size: 14px; }
 summary { cursor: pointer; color: var(--series-1); font-weight: 500; width: fit-content; }

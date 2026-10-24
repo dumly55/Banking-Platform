@@ -2,10 +2,13 @@
 
 A data analysis project built on the data model of an online bank. Python simulates two years of realistic banking activity, SQL turns it into analysis-ready views, and Tableau shows growth, customer retention and back-office performance.
 
+**Live site:** https://dumly55.github.io/Banking-Platform/, the findings and charts in the original app's navy look (see [Website](#website)).
+
 > The data is synthetic. It comes from a seeded simulation, so every run produces the same numbers. The project started as a PHP/MySQL banking web app, which is still on the `main` branch and in the git history.
 
 ```
 build.py (Python simulation)  ->  PostgreSQL "bank" database (tables + SQL views)  ->  data/tableau/*.csv  ->  Tableau
+                                                                                    ->  docs/data.json      ->  website
 ```
 
 ## Quick start
@@ -104,6 +107,18 @@ These patterns come from rules built into the simulation (see [What's simulated]
 
 GitHub displays the notebook with its charts. To run it yourself, build the database first, then open the notebook in VS Code with the `.venv` interpreter selected, or run `jupyter notebook`.
 
+## Website
+
+[docs/](docs/) is a static site that presents the analysis: headline numbers, growth, a customer map, deposit concentration, a retention heatmap, check-review operations, and findings with recommendations. It uses the original web app's navy branding, follows the system's light or dark mode, and works on phones. Every chart has hover details and a "Show the data" table.
+
+`python build.py` refreshes its data (`docs/data.json`) from the SQL analysis. To preview it locally:
+
+```bash
+python -m http.server -d docs     # then open http://localhost:8000
+```
+
+**Publishing:** in the GitHub repo, go to **Settings → Pages**, set **Source** to *Deploy from a branch*, pick `main` and `/docs`, then **Save**. The site appears at https://dumly55.github.io/Banking-Platform/ within a minute or two, and it updates on every push.
+
 ## Tableau dashboards
 
 ### Connect the data
@@ -162,5 +177,6 @@ requirements.txt   Python dependency: psycopg, the PostgreSQL driver
 sql/schema.sql     Tables
 sql/views.sql      Analysis views (the Tableau data sources)
 sql/analysis/      Business-question queries, with answers in each file's header
+docs/              Website (GitHub Pages): index.html, styles.css, app.js, data.json
 data/tableau/      Generated CSVs (git-ignored)
 ```

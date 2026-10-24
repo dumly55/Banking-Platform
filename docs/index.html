@@ -155,6 +155,81 @@
                 </figure>
             </div>
         </section>
+
+        <section id="findings" class="section wrap">
+            <h2>Findings</h2>
+            <p class="section-lede">What the analysis says, how sure it is, and what the bank should do about it.</p>
+            <div class="findings">
+                <article class="card finding">
+                    <p class="tag">Operations</p>
+                    <h3>Weekend checks wait days, not hours</h3>
+                    <p>A check sent on Saturday waits a median of 46 hours for review, against about 9 hours on a weekday. A Mann-Whitney U test puts the gap far beyond chance (p &lt; 0.001).</p>
+                    <p class="action"><strong>Do:</strong> add a short Saturday review shift.</p>
+                </article>
+                <article class="card finding">
+                    <p class="tag">Operations</p>
+                    <h3>Reviewers don't agree on what to deny</h3>
+                    <p>Denial rates run from 1.6% to 5.1% depending on the reviewer. Chi-square tests within each check size rule out chance (p &lt; 0.001), and every reviewer sees the same mix of checks.</p>
+                    <p class="action"><strong>Do:</strong> write down denial criteria and have reviewers regularly judge the same sample of checks.</p>
+                </article>
+                <article class="card finding">
+                    <p class="tag">Customers</p>
+                    <h3>Going quiet is the warning sign</h3>
+                    <p>A model trained on balances, savings, denied checks and activity predicts who goes dormant well (ROC AUC 0.93), but "days since last activity" alone does just as well. 53 customers look at risk today, holding $702K.</p>
+                    <p class="action"><strong>Do:</strong> send a weekly report of customers who have gone quiet, largest balances first.</p>
+                </article>
+                <article class="card finding">
+                    <p class="tag">Customers</p>
+                    <h3>A few customers hold most of the money</h3>
+                    <p>The top tenth of customers hold 40% of all deposits, and the Gini coefficient is 0.55. Losing one large customer costs as much as losing dozens of typical ones.</p>
+                    <p class="action"><strong>Do:</strong> put the largest balances first in any retention work.</p>
+                </article>
+                <article class="card finding">
+                    <p class="tag">Growth</p>
+                    <h3>New customers wait a week for money to arrive</h3>
+                    <p>The median new customer waits 8 days for a first check to clear, and 1 in 10 waits two weeks, in every quarter. Most of that is waiting for the next paycheck.</p>
+                    <p class="action"><strong>Do:</strong> let customers fund the account when they sign up.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="method" class="section wrap">
+            <h2>Method</h2>
+            <p class="section-lede">
+                Bank of the Future started as a PHP banking web app. This project keeps its rules and data model, simulates
+                two years of activity, and analyzes it with the tools a data team would use.
+            </p>
+            <ol class="steps">
+                <li class="card step">
+                    <p class="tag">1 · Python</p>
+                    <h3>Simulate</h3>
+                    <p>2,000 customers with paychecks, ATM visits, transfers and savings, following the app's rules: deposits wait for review, overdrafts are refused, interest compounds yearly.</p>
+                    <a href="https://github.com/dumly55/Banking-Platform/blob/main/build.py">build.py</a>
+                </li>
+                <li class="card step">
+                    <p class="tag">2 · PostgreSQL</p>
+                    <h3>Store and query</h3>
+                    <p>Five tables, four analysis views, and eight queries that each answer one business question, using window functions, CTEs, percentiles and a z-test.</p>
+                    <a href="https://github.com/dumly55/Banking-Platform/tree/main/sql">sql/</a>
+                </li>
+                <li class="card step">
+                    <p class="tag">3 · Python notebook</p>
+                    <h3>Test and predict</h3>
+                    <p>pandas, scipy and scikit-learn check whether the gaps are real and build the dormancy model.</p>
+                    <a href="https://github.com/dumly55/Banking-Platform/blob/main/analysis.ipynb">analysis.ipynb</a>
+                </li>
+                <li class="card step">
+                    <p class="tag">4 · Tableau and this site</p>
+                    <h3>Show</h3>
+                    <p>The same views are exported for Tableau dashboards, and this page is built from the SQL results.</p>
+                    <a href="https://github.com/dumly55/Banking-Platform#tableau-dashboards">Tableau guide</a>
+                </li>
+            </ol>
+            <p class="note">
+                The data is synthetic, so these patterns come from rules built into the simulation. The point is the method:
+                the same queries, tests and charts would surface them in real data.
+            </p>
+        </section>
     </main>
 
     <footer class="footer">
