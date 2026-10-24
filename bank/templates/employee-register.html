@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Employee Registration{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/employee-auth.css">
+    <script src="assets/js/forms.js" defer></script>
+{% endblock %}
+
+{% macro field(name, placeholder, attrs, keep=true) %}
+    <div class="form-group"><input class="form-input" id="{{ name }}" name="{{ name }}" placeholder="{{ placeholder }}"
+        value="{{ old.get(name, '') if keep else '' }}" {{ attrs | safe }}></div><br>
+{% endmacro %}
+
+{% block body %}
+    <div id="wrapper">
+        {% if not signup_id %}
+            <form action="employee-register" method="post" id="form-login">
+                {{ csrf_field() }}
+                <input type="hidden" name="step" value="verify">
+                <h1 class="form-heading">New Employee</h1>
+                <p class="form-hint">Enter the employee ID from your offer email.</p>
+                <div class="form-group">
+                    <input type="text" name="employee_id" class="form-input" placeholder="Employee ID" maxlength="10"
+                           inputmode="numeric" data-filter="digits" required autofocus>
+                </div><br>
+                <div class="form-group">
+                    <input type="email" name="email" class="form-input" placeholder="Email the offer was sent to" required>
+                </div>
+                <div class="container-login100-form-btn">
+                    <button type="submit" class="login100-form-btn">Continue</button>
+                </div>
+                <div class="text-center p-t-90">
+                    <a class="txt1" href="employee-login">Back to Login</a>
+                </div>
+            </form>
+        {% else %}
+            <form action="employee-register" method="post" id="form-login">
+                {{ csrf_field() }}
+                <h1 class="form-heading">Employee Registration</h1>
+                <p class="form-hint">Employee ID {{ signup_id }}</p>
+                {% if errors %}
+                    <ul class="form-errors">
+                        {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+                    </ul>
+                {% endif %}
+                {{ field('first', 'First Name', 'type="text" maxlength="50" required') }}
+                {{ field('last', 'Last Name', 'type="text" maxlength="50" required') }}
+                <div class="form-group">
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Password (8+ characters, a letter and a number)"
+                           minlength="8" pattern="(?=.*[A-Za-z])(?=.*\d).{8,}" required>
+                </div><br>
+                <div class="form-group">
+                    <input type="password" name="cpassword" class="form-input" placeholder="Confirm Password" data-match="#password" required>
+                    <span class="match-message"></span>
+                </div><br>
+                {{ field('phone', 'Phone Number (10 digits)', 'type="text" maxlength="10" pattern="\d{10}" inputmode="numeric" data-filter="digits" required') }}
+                {{ field('address', 'Address Line 1', 'type="text" maxlength="100" required') }}
+                {{ field('address2', 'Address Line 2 (Optional)', 'type="text" maxlength="100"') }}
+                {{ field('city', 'City', 'type="text" maxlength="60" data-filter="letters" required') }}
+                {{ field('state', 'State (ex: CA, NY, NC)', 'type="text" maxlength="2" pattern="[A-Z]{2}" data-filter="upper" required') }}
+                {{ field('zip', 'Zip Code', 'type="text" maxlength="5" pattern="\d{5}" inputmode="numeric" data-filter="digits" required') }}
+                {{ field('lstate', 'License State (ex: CA, NY, NC)', 'type="text" maxlength="2" pattern="[A-Z]{2}" data-filter="upper" required') }}
+                {{ field('license', 'License Number', 'type="text" maxlength="20" required') }}
+                {{ field('ssn', 'SSN (9 digits)', 'type="password" maxlength="9" pattern="\d{9}" inputmode="numeric" data-filter="digits" required', keep=false) }}
+                <div class="container-login100-form-btn">
+                    <button type="submit" class="login100-form-btn">Register</button>
+                </div>
+                <div class="text-center p-t-90">
+                    <a class="txt1" href="employee-register?cancel=1">Back to Login</a>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}

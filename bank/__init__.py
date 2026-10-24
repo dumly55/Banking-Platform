@@ -51,9 +51,9 @@ def create_app():
         response.headers['Referrer-Policy'] = 'same-origin'
         return response
 
-    from . import access, customer, db, public, setup
+    from . import access, customer, db, public, setup, staff
     app.teardown_appcontext(db.close)
     app.cli.add_command(setup.setup_db)
-    for blueprint in (public.bp, access.bp, customer.bp):
+    for blueprint in (public.bp, access.bp, customer.bp, staff.bp):
         app.register_blueprint(blueprint)
     return app

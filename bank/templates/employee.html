@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Employee{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="assets/css/employee.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <script src="assets/js/forms.js" defer></script>
+{% endblock %}
+{% block body %}
+    {% include '_employee_nav.html' %}
+    <div class="toolbar">
+        <a href="register" class="log logbutton">Register New Customer</a>
+    </div>
+    <table>
+        <caption>Total Bank Accounts ({{ accounts | length }})</caption>
+        <thead>
+            <tr><th>Account Number</th><th>Owner</th><th>Balance</th><th>Type</th></tr>
+        </thead>
+        <tbody>
+            {% for a in accounts %}
+                <tr>
+                    <td>{{ a.account_number }}</td>
+                    <td>{{ a.first_name }} {{ a.last_name }} (Username: {{ a.username }})</td>
+                    <td>{{ a.balance | money }}</td>
+                    <td>{{ a.type }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if me.tier > 1 %}
+        <div class="popup" id="popup-hire">
+            <div class="overlay" onclick="togglePopup('popup-hire')"></div>
+            <div class="content">
+                <div class="close-btn" onclick="togglePopup('popup-hire')">&times;</div>
+                <form action="employee" method="post">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="action" value="hire">
+                    <h2>Hire</h2><br>
+                    <label>Email: <input name="email" type="email" required></label><br>
+                    <label>Tier:
+                        <select name="tier" required>
+                            {% for t in range(me.tier - 1, 0, -1) %}
+                                <option value="{{ t }}">{{ t }}</option>
+                            {% endfor %}
+                        </select>
+                    </label><br><br>
+                    <button type="submit" class="btn">Hire</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="popup" id="popup-terminate">
+            <div class="overlay" onclick="togglePopup('popup-terminate')"></div>
+            <div class="content">
+                <div class="close-btn" onclick="togglePopup('popup-terminate')">&times;</div>
+                <form action="employee" method="post" onsubmit="return confirm('Terminate this employee?')">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="action" value="terminate">
+                    <h2>Terminate</h2><br>
+                    {% if terminable %}
+                        <label>Select Employee:
+                            <select name="employee" required>
+                                {% for t in terminable %}
+                                    <option value="{{ t.id }}">
+                                        {% if t.status == 'Hired' %}{{ t.first_name }} {{ t.last_name }} (ID: {{ t.id }}, Tier: {{ t.tier }})
+                                        {%- else %}ID: {{ t.id }} (Pending Tier {{ t.tier }} offer, {{ t.email }}){% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </label><br><br>
+                        <button type="submit" class="btn">Terminate</button>
+                    {% else %}
+                        <p>There is no one you can terminate.</p>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    {% include '_session_timeout.html' %}
+{% endblock %}
