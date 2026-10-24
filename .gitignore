@@ -1,11 +1,6 @@
-.env
-storage/uploads/deposits/*
-storage/logs/*
-!storage/**/.gitkeep
-*.log
+data/
+__pycache__/
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
-data/
-__pycache__/
