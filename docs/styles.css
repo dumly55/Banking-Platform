@@ -149,6 +149,30 @@ h1 {
 .kpi-value { margin: 4px 0 2px; font-size: 34px; font-weight: 600; line-height: 1.2; }
 .kpi-note { margin: 0; color: var(--ink-2); font-size: 14px; }
 
+/* Sections and chart cards */
+.section { padding-top: 56px; scroll-margin-top: 72px; }
+.section h2 { margin: 0 0 8px; font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
+.section-lede { max-width: 48em; margin: 0 0 24px; color: var(--ink-2); }
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+    gap: 16px;
+}
+.chart-card { margin: 0; display: flex; flex-direction: column; }
+.chart-card h3 { margin: 0; font-size: 17px; font-weight: 600; }
+.chart-card figcaption p { margin: 2px 0 12px; color: var(--ink-2); font-size: 14px; }
+.chart-box { position: relative; height: 280px; }
+
+/* "Show the data": the table view behind every chart */
+details { margin-top: 12px; font-size: 14px; }
+summary { cursor: pointer; color: var(--series-1); font-weight: 500; width: fit-content; }
+summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+.table-scroll { max-height: 260px; overflow: auto; margin-top: 8px; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { position: sticky; top: 0; background: var(--surface); color: var(--ink-2); font-weight: 600; }
+
 /* Footer */
 .footer {
     margin-top: 64px;

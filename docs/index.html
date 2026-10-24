@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
     <script src="app.js" defer></script>
 </head>
 <body>
@@ -61,6 +62,31 @@
                     <p class="kpi-value" data-fill="dormant_money">…</p>
                     <p class="kpi-note" data-fill="dormant_note"></p>
                 </article>
+            </div>
+        </section>
+
+        <section id="growth" class="section wrap">
+            <h2>Growth</h2>
+            <p class="section-lede">
+                Money held grew from <span data-fill="first_money">…</span> in the first month to
+                <span data-fill="money_held">…</span>, and monthly signups more than tripled. Growth in percentage
+                terms slows as the base gets bigger, but the bank adds more money every month.
+            </p>
+            <div class="chart-grid">
+                <figure class="card chart-card" id="money-figure">
+                    <figcaption>
+                        <h3>Money held</h3>
+                        <p>End-of-month balances, by account type</p>
+                    </figcaption>
+                    <div class="chart-box"><canvas id="money-chart" role="img" aria-label="Area chart of money held each month, split into checking and savings, rising from near zero to $25.4M"></canvas></div>
+                </figure>
+                <figure class="card chart-card" id="signups-figure">
+                    <figcaption>
+                        <h3>New customers</h3>
+                        <p>Signups per month</p>
+                    </figcaption>
+                    <div class="chart-box"><canvas id="signups-chart" role="img" aria-label="Bar chart of new customers per month, rising from 35 to about 120"></canvas></div>
+                </figure>
             </div>
         </section>
     </main>
