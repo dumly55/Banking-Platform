@@ -254,3 +254,6 @@ footer {
     color: #fff;
     padding: 10px 0;
 }
+
+/* Cross-fade into the app pages instead of flashing white (Chrome/Edge) */
+@view-transition { navigation: auto; }

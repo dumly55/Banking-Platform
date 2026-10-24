@@ -21,14 +21,7 @@ body {
     background-size: cover;
 }
 
-h1 {
-    padding: 0;
-    margin: 0px;
-    font-size: 15px;
-    background: navy;
-    padding: 15px 40px;
-    color: rgba(255, 255, 255, 0.8);
-}
+.app-bar { font-size: 15px; } /* more links than the customer bar */
 
 table {
     background: white;
@@ -50,27 +43,6 @@ table img {
     height: auto;
     margin: 6px;
     cursor: zoom-in;
-}
-
-.log {
-    text-decoration: none;
-    color: rgba(255, 255, 255, 0.8);
-    background: navy;
-    padding: 15px 40px;
-    border-radius: 4px;
-    font-weight: normal;
-    text-transform: uppercase;
-    transition: all 0.2s ease-in-out;
-    top: 0px;
-}
-
-.logbutton:hover {
-    color: rgba(255, 255, 255, 1);
-    box-shadow: 0 5px 15px rgba(145, 92, 182, .4);
-}
-
-.lbtn {
-    float: right;
 }
 
 /* Popup mechanics are in common.css */
@@ -103,6 +75,22 @@ table.inquiries { width: 95vw; }
 table caption { padding: 6px; font-weight: bold; }
 .popup .content h2 { font-size: 20px; font-weight: bold; }
 .popup .content input, .popup .content select { margin: 6px 0; padding: 4px; }
+
+/* Row actions (approve, resolve, reopen) in the header's navy; deny is outlined in red */
+td form button {
+    margin: 2px;
+    padding: 6px 14px;
+    border: 1px solid #003366;
+    border-radius: 4px;
+    background: #003366;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease;
+}
+td form button:hover { background: #fff; color: #003366; }
+td form button[value=deny] { border-color: #b42318; background: #fff; color: #b42318; }
+td form button[value=deny]:hover { background: #b42318; color: #fff; }
 
 /* Click-to-enlarge for check images on the pending deposits page */
 #lightbox {

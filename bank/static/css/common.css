@@ -1,4 +1,35 @@
-/* Shared by every app page: flash messages, popups, and the inactivity timeout dialog. */
+/* Shared by every app page: header bar, page transitions, flash messages, popups, and the
+   inactivity timeout dialog. Loaded before each page's own stylesheet, so pages can adjust it. */
+
+/* Pages cross-fade instead of flashing white (Chrome/Edge; other browsers just load normally). */
+@view-transition { navigation: auto; }
+
+/* Header bar on customer and employee pages, in the public site's navy. It stays in place while
+   the rest of the page cross-fades. */
+.app-bar {
+    margin: 0;
+    padding: 15px 40px;
+    background: #003366;
+    color: rgba(255, 255, 255, .85);
+    font-size: 20px;
+    view-transition-name: app-bar;
+}
+.lbtn { float: right; }
+.log {
+    padding: 15px 40px;
+    border-radius: 4px;
+    background: #003366;
+    color: rgba(255, 255, 255, .8);
+    font-weight: normal;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color .2s ease, box-shadow .2s ease;
+}
+.logbutton:hover {
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(145, 92, 182, .4);
+}
+.log:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
 
 /* Flash messages: slide in below the header, fade out on their own after 6 seconds (or on click). */
 .flash {
@@ -67,6 +98,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
     *, *::before, *::after {
         animation-duration: .01ms !important;
         transition-duration: .01ms !important;
@@ -100,7 +132,7 @@
     padding: 10px 22px;
     border: 0;
     border-radius: 6px;
-    background: navy;
+    background: #003366;
     color: #fff;
     font: inherit;
     font-size: 15px;

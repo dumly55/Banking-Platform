@@ -12,36 +12,6 @@ body {
     background-size: cover;
 }
 
-.log {
-    text-decoration: none;
-    color: rgba(255, 255, 255, 0.8);
-    background: navy;
-    padding: 15px 40px;
-    border-radius: 4px;
-    font-weight: normal;
-    text-transform: uppercase;
-    transition: all 0.2s ease-in-out;
-    top: 0px;
-}
-
-.logbutton:hover {
-    color: rgba(255, 255, 255, 1);
-    box-shadow: 0 5px 15px rgba(145, 92, 182, .4);
-}
-
-.lbtn {
-    float: right;
-}
-
-h1 {
-    padding: 0;
-    margin: 0px;
-    font-size: 20px;
-    background: navy;
-    padding: 15px 40px;
-    color: rgba(255, 255, 255, 0.8);
-}
-
 /* Popup mechanics are in common.css */
 .popup .content { background-image: url(../img/card_background.jpeg); }
 .popup .close-btn { color: white; }

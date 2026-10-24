@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    {% block head %}{% endblock %}
     <link rel="stylesheet" href="assets/css/common.css">
+    {% block head %}{% endblock %}
 </head>
 <body>
     {% for kind, message in get_flashed_messages(with_categories=true) %}

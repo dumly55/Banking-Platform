@@ -1,5 +1,5 @@
 {# Employee header nav with live counts. Floated right, so the first link renders rightmost. #}
-<h1>
+<h1 class="app-bar">
     <a class="home-icon" href="./" title="Public site"><i class='bx bx-building-house'></i></a>
     <span class="page-title">{{ title }}</span>
     {% for href, label in [('logout', 'Logout'), ('employee-inquiries', 'Inquiries (%d)' % open_tickets),
@@ -7,7 +7,7 @@
         <div class="lbtn"><a href="{{ href }}" class="log logbutton">{{ label }}</a></div>
     {% endfor %}
     {% if me.tier > 1 and current == 'employee' %}
-        <div class="lbtn"><a onclick="togglePopup('popup-terminate')" class="log logbutton" style="cursor:pointer">Terminate</a></div>
-        <div class="lbtn"><a onclick="togglePopup('popup-hire')" class="log logbutton" style="cursor:pointer">Hire</a></div>
+        <div class="lbtn"><a href="#" onclick="togglePopup('popup-terminate'); return false;" class="log logbutton" style="cursor:pointer">Terminate</a></div>
+        <div class="lbtn"><a href="#" onclick="togglePopup('popup-hire'); return false;" class="log logbutton" style="cursor:pointer">Hire</a></div>
     {% endif %}
 </h1>

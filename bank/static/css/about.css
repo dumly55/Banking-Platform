@@ -210,3 +210,6 @@ footer p {
         flex-basis: calc(50% - 40px);
     }
 }
+
+/* Cross-fade into the app pages instead of flashing white (Chrome/Edge) */
+@view-transition { navigation: auto; }

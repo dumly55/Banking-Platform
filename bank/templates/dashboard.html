@@ -5,11 +5,11 @@
     <script src="assets/js/forms.js" defer></script>
 {% endblock %}
 {% block body %}
-    <h1>
+    <h1 class="app-bar">
         <span style="font-weight: bold;">Welcome, {{ first_name }}!</span>
         {% set current = 'dashboard' %}{% include '_user_nav.html' %}
-        <div class="lbtn"><a onclick="togglePopup('popup-transfer')" style="cursor: pointer;" class="log logbutton">Transfer</a></div>
-        <div class="lbtn"><a onclick="togglePopup('popup-open')" style="cursor: pointer;" class="log logbutton">Open an Account</a></div>
+        <div class="lbtn"><a href="#" onclick="togglePopup('popup-transfer'); return false;" style="cursor: pointer;" class="log logbutton">Transfer</a></div>
+        <div class="lbtn"><a href="#" onclick="togglePopup('popup-open'); return false;" style="cursor: pointer;" class="log logbutton">Open an Account</a></div>
     </h1>
 
     <form action="account" method="get">
