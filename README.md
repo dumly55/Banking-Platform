@@ -5,19 +5,34 @@ A data analysis project built on the data model of an online bank. Python simula
 > The data is synthetic. It comes from a seeded simulation, so every run produces the same numbers. The project started as a PHP/MySQL banking web app, which is still on the `main` branch and in the git history.
 
 ```
-build.py (Python simulation)  ->  data/bank.db (SQLite tables + SQL views)  ->  data/tableau/*.csv  ->  Tableau
+build.py (Python simulation)  ->  PostgreSQL "bank" database (tables + SQL views)  ->  data/tableau/*.csv  ->  Tableau
 ```
 
 ## Quick start
 
-Requires Python 3.9+ (tested on 3.12). It uses only the standard library, so there's nothing to install.
+Requires Python 3.9+ (tested on 3.12) and PostgreSQL (tested on 17).
 
-```bash
-python build.py          # about 5 seconds: data/bank.db and data/tableau/*.csv
-python -m unittest       # checks the books balance
+**One-time setup (Windows, PowerShell):**
+
+```powershell
+py -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+setx PGPASSWORD 'your-postgres-password'   # then open a new terminal
 ```
 
-Then open the CSVs in Tableau Public or Tableau Desktop (see [Tableau dashboards](#tableau-dashboards)), or query `data/bank.db` with any SQLite client.
+If PowerShell refuses to run `activate`, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once. On macOS or Linux, use `python3 -m venv .venv`, `source .venv/bin/activate` and `export PGPASSWORD=...` instead.
+
+The build connects to PostgreSQL on `localhost` as user `postgres`. To use another server or user, set the standard `PGHOST`, `PGPORT` or `PGUSER` variables.
+
+**Each time (with `.venv` activated):**
+
+```bash
+python build.py          # about 10 seconds: rebuilds the "bank" database and data/tableau/*.csv
+python -m unittest       # checks the books balance, in a separate bank_test database
+```
+
+Then open the CSVs in Tableau (see [Tableau dashboards](#tableau-dashboards)). To query the data directly, connect to the `bank` database with psql or pgAdmin, both installed with PostgreSQL. Tableau Desktop can also connect live: **Connect → PostgreSQL**, server `localhost`, database `bank`.
 
 ## What's simulated
 
@@ -52,7 +67,7 @@ Defined in [sql/views.sql](sql/views.sql). Each view is exported to `data/tablea
 | View | Grain | Questions it answers |
 |---|---|---|
 | `v_transactions` | One row per transaction | What is the transaction mix by month? How long do check reviews take, and who denies the most? How many transfers go to other customers versus a customer's own accounts? |
-| `v_monthly_balances` | Account × month | How much money does the bank hold over time, split into checking and savings? Uses a recursive calendar CTE and a running-sum window function. |
+| `v_monthly_balances` | Account × month | How much money does the bank hold over time, split into checking and savings? Uses a `generate_series` month calendar and a running-sum window function. |
 | `v_customers` | One row per customer | Where are customers located? How are balances distributed? Who is **Active** (moved money in the last 90 days) and who is **Dormant**? |
 | `v_cohort_retention` | Signup month × months since signup | What share of each signup cohort is still active N months later? |
 
@@ -99,8 +114,8 @@ Tableau Public publishes workbooks to your public profile. That's fine here beca
 
 ## Testing
 
-`python -m unittest` builds a 200-customer bank in a temporary folder and checks:
-- Replaying the ledger reproduces every `balance_before` and every final balance, and no account ever goes below zero.
+`python -m unittest` builds a 200-customer bank in a separate `bank_test` database and checks:
+- Replaying the ledger reproduces every `balance_before` and every final balance to the cent, and no account ever goes below zero. Money is stored as `NUMERIC`, so there's no rounding drift.
 - Every Transfer Out has exactly one matching Transfer In.
 - Check deposits are reviewed after they're submitted and only on weekdays, and pending deposits have no reviewer.
 - Interest payments match each account's rate.
@@ -109,9 +124,10 @@ Tableau Public publishes workbooks to your public profile. That's fine here beca
 ## Project structure
 
 ```
-build.py           Simulation, SQLite load and CSV export
+build.py           Simulation, PostgreSQL load (COPY) and CSV export
 test_build.py      Ledger and view checks
+requirements.txt   Python dependency: psycopg, the PostgreSQL driver
 sql/schema.sql     Tables
 sql/views.sql      Analysis views (the Tableau data sources)
-data/              Generated output (git-ignored): bank.db and tableau/*.csv
+data/tableau/      Generated CSVs (git-ignored)
 ```
