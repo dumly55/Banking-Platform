@@ -30,5 +30,16 @@ document.addEventListener('input', event => {
 });
 
 function togglePopup(id) {
-    document.getElementById(id).classList.toggle('active');
+    const popup = document.getElementById(id);
+    if (popup.classList.toggle('active')) {
+        // Put the cursor in the popup's first field, ready to type
+        const field = popup.querySelector('input:not([type=hidden]):not([type=radio]), select');
+        if (field) setTimeout(() => field.focus({ preventScroll: true }), 50);
+    }
 }
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+        document.querySelectorAll('.popup.active').forEach(popup => popup.classList.remove('active'));
+    }
+});

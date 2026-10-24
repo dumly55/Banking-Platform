@@ -1,8 +1,9 @@
-/* Shared by every page: flash messages and the inactivity timeout dialog. */
+/* Shared by every app page: flash messages, popups, and the inactivity timeout dialog. */
 
+/* Flash messages: slide in below the header, fade out on their own after 6 seconds (or on click). */
 .flash {
     position: fixed;
-    top: 16px;
+    top: 76px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
@@ -13,13 +14,65 @@
     color: #fff;
     box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
     cursor: pointer;
-    animation: flash-in .25s ease-out;
+    animation: flash-in .25s ease-out, flash-out .3s ease-in 6s forwards;
 }
-.flash + .flash { top: 72px; }
+.flash + .flash { top: 132px; }
 .flash-error   { background: #b42318; }
 .flash-success { background: #12733a; }
 .flash-info    { background: #1f4e9c; }
 @keyframes flash-in { from { opacity: 0; transform: translate(-50%, -10px); } }
+@keyframes flash-out { to { opacity: 0; visibility: hidden; transform: translate(-50%, -10px); } }
+
+/* Popups: the backdrop fades and the panel scales in and back out. Pages set only the panel's
+   background and close-button color. visibility keeps a closed popup's fields out of the tab order. */
+.popup .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, .7);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, visibility .2s;
+}
+.popup .content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    width: 450px;
+    max-width: calc(100vw - 32px);
+    height: 310px;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -50%) scale(.85);
+    transition: transform .25s cubic-bezier(.2, .8, .2, 1), opacity .2s ease, visibility .25s;
+}
+.popup.active .overlay { opacity: 1; visibility: visible; }
+.popup.active .content { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+.popup .close-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 25px;
+    font-weight: 600;
+    line-height: 30px;
+    text-align: center;
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
 
 .timeout-modal {
     display: none;
