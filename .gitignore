@@ -7,3 +7,5 @@ storage/logs/*
 Thumbs.db
 .idea/
 .vscode/
+data/
+__pycache__/
