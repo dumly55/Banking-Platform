@@ -2,6 +2,7 @@
 
 Builds a small bank in its own PostgreSQL database, bank_test, so the real "bank" database is untouched.
 """
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -76,6 +77,15 @@ class SimulationTest(unittest.TestCase):
         for view in build.VIEWS:
             with open(folder / f'{view[2:]}.csv', encoding='utf-8') as f:
                 self.assertEqual(sum(1 for _ in f) - 1, self.scalar(f'SELECT COUNT(*) FROM {view}'))
+
+    def test_site_data_runs_every_analysis_query(self):
+        path = Path(self.tmp.name) / 'data.json'
+        build.export_site(self.db, path)
+        data = json.loads(path.read_text())
+        for query in (Path(build.ROOT) / 'sql' / 'analysis').glob('*.sql'):
+            self.assertTrue(data[query.stem], f'{query.name} returned no rows')
+        self.assertEqual(data['totals']['customers'], 200)
+        self.assertEqual(sum(row['customers'] for row in data['customers_by_state']), 200)
 
 
 if __name__ == '__main__':

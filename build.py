@@ -1,7 +1,8 @@
 """Simulates two years of Bank of the Future activity and loads it into PostgreSQL.
 
     python build.py        rebuilds the database "bank" (tables from sql/schema.sql, analysis views from
-                           sql/views.sql) and writes one CSV per view to data/tableau/ for Tableau
+                           sql/views.sql), writes one CSV per view to data/tableau/ for Tableau, and
+                           writes docs/data.json for the website
 
 Connects to PostgreSQL on localhost as user postgres (or $PGUSER), with the password from $PGPASSWORD.
 
@@ -12,10 +13,12 @@ an account are refused, and interest compounds once a year on each account's ope
 import csv
 import heapq
 import itertools
+import json
 import math
 import os
 import random
 from datetime import datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 
 import psycopg
@@ -218,9 +221,31 @@ def export(db, folder):
             writer.writerows(rows)
 
 
+def export_site(db, path):
+    """Writes the website's data: the result of every sql/analysis query, plus totals and chart series."""
+    def rows(sql):
+        cursor = db.execute(sql)
+        names = [column.name for column in cursor.description]
+        return [dict(zip(names, row)) for row in cursor]
+
+    data = {file.stem: rows(file.read_text()) for file in sorted((ROOT / 'sql' / 'analysis').glob('*.sql'))}
+    data['totals'] = rows("""
+        SELECT COUNT(*) AS customers, COUNT(*) FILTER (WHERE status = 'Active') AS active_customers,
+               SUM(balance) AS money_held, (SELECT MAX(created_at) FROM transactions) AS as_of
+        FROM v_customers""")[0]
+    data['money_by_type'] = rows('SELECT month, account_type, SUM(end_balance) AS money_held FROM v_monthly_balances GROUP BY 1, 2 ORDER BY 1, 2')
+    data['customers_by_state'] = rows('SELECT state, COUNT(*) AS customers, SUM(balance) AS money_held FROM v_customers GROUP BY state ORDER BY state')
+    data['cohort_retention'] = rows('SELECT * FROM v_cohort_retention ORDER BY cohort, months_since_signup')
+    path.parent.mkdir(exist_ok=True)
+    # JSON has no decimal or date types: money becomes a number, dates become 'YYYY-MM-DD' text
+    path.write_text(json.dumps(data, indent=1, default=lambda v: float(v) if isinstance(v, Decimal) else str(v)))
+
+
 if __name__ == '__main__':
     db = build()
     for table in ('customers', 'accounts', 'transactions', 'check_deposits'):
         print(f'{table:>15}: {db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]:,}')
     export(db, ROOT / 'data' / 'tableau')
     print('Tableau data sources written to data/tableau/')
+    export_site(db, ROOT / 'docs' / 'data.json')
+    print('Website data written to docs/data.json')
