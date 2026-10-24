@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="assets/css/auth.css">
+    <script src="assets/js/forms.js" defer></script>
+{% endblock %}
+
+{# A floating-label input for the auth.css form style, refilled with what was typed. #}
+{% macro field(name, label, attrs, keep=true) %}
+    <div class="input-box">
+        <input placeholder="" id="{{ name }}" name="{{ name }}" value="{{ old.get(name, '') if keep else '' }}" {{ attrs | safe }}>
+        <span class="floating-label">{{ label }}</span>
+    </div>
+{% endmacro %}
+
+{% block body %}
+    <div class="wrapper">
+        <form action="register" id="register" method="post">
+            {{ csrf_field() }}
+            <h1>Register</h1>
+            {% if errors %}
+                <ul class="form-errors">
+                    {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+            {% endif %}
+
+            {{ field('first', 'First Name', 'type="text" maxlength="50" required autocomplete="given-name"') }}
+            {{ field('last', 'Last Name', 'type="text" maxlength="50" required autocomplete="family-name"') }}
+            {{ field('username', 'Username', 'type="text" maxlength="30" pattern="[A-Za-z0-9_.]{3,30}" required autocomplete="username"') }}
+            <div class="input-box">
+                <input type="password" placeholder="" id="password" name="password" minlength="8" pattern="(?=.*[A-Za-z])(?=.*\d).{8,}" required autocomplete="new-password">
+                <span class="floating-label">Password (minimum 8 characters, 1 letter, &amp; 1 number)</span>
+            </div>
+            <div class="input-box">
+                <input type="password" placeholder="" id="cpassword" name="cpassword" data-match="#password" required autocomplete="new-password">
+                <span class="floating-label">Confirm Password</span>
+                <span class="match-message"></span>
+            </div>
+            <div class="input-box">
+                <input type="password" placeholder="" id="pin" name="pin" maxlength="4" pattern="\d{4}" inputmode="numeric" data-filter="digits" required>
+                <span class="floating-label">4-Digit PIN</span>
+            </div>
+            <div class="input-box">
+                <input type="password" placeholder="" id="cpin" name="cpin" maxlength="4" inputmode="numeric" data-filter="digits" data-match="#pin" required>
+                <span class="floating-label">Confirm 4-Digit PIN</span>
+                <span class="match-message"></span>
+            </div>
+            {{ field('email', 'Email', 'type="email" maxlength="254" required autocomplete="email"') }}
+            {{ field('ssn', 'Social Security Number (9 digits)', 'type="password" maxlength="9" pattern="\d{9}" inputmode="numeric" data-filter="digits" required', keep=false) }}
+            {{ field('phone', 'Phone Number (10 digits)', 'type="text" maxlength="10" pattern="\d{10}" inputmode="numeric" data-filter="digits" required autocomplete="tel-national"') }}
+            {{ field('lstate', 'License State (ex: CA, NY, NC)', 'type="text" maxlength="2" pattern="[A-Z]{2}" data-filter="upper" required') }}
+            {{ field('license', 'License Number', 'type="text" maxlength="20" required') }}
+            {{ field('address', 'Address Line 1', 'type="text" maxlength="100" required autocomplete="address-line1"') }}
+            {{ field('address2', 'Address Line 2 (Optional)', 'type="text" maxlength="100" autocomplete="address-line2"') }}
+            {{ field('city', 'City', 'type="text" maxlength="60" data-filter="letters" required autocomplete="address-level2"') }}
+            {{ field('state', 'State (ex: CA, NY, NC)', 'type="text" maxlength="2" pattern="[A-Z]{2}" data-filter="upper" required') }}
+            {{ field('zip', 'Zip Code', 'type="text" maxlength="5" pattern="\d{5}" inputmode="numeric" data-filter="digits" required autocomplete="postal-code"') }}
+
+            <button type="submit" class="btn">Register</button>
+            <div class="register-link">
+                {% if by_employee %}
+                    <p><a href="employee">Back to employee dashboard</a></p>
+                {% else %}
+                    <p>Already have an account? <a href="login">Login</a></p>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Forgot Password{% endblock %}
+{% block icon %}lock.ico{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/forgot.css">
+{% endblock %}
+{% block body %}
+    {% set recover = 'Employee ID' if for_employee else 'Username' %}
+    <div class="form-gap"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h3><i class="fa fa-lock fa-4x" style="color: gray;"></i></h3>
+                        <h2><b>Forgot Password?</b></h2>
+                        <p>Enter your email address to reset your password or recover your {{ recover | lower if not for_employee else 'employee ID' }}.</p>
+                        <form action="{{ 'forgot?for=employee' if for_employee else 'forgot' }}" method="post" autocomplete="off">
+                            {{ csrf_field() }}
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-envelope color-blue"></i></span>
+                                    <input name="email" placeholder="email address" class="form-control" type="email" required autofocus>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button name="action" value="reset" class="btn btn-lg btn-primary btn-block" type="submit">Reset Password</button>
+                            </div>
+                            <div class="form-group">
+                                <button name="action" value="recover" class="btn btn-lg btn-primary btn-block" type="submit">Forgot {{ recover }}</button>
+                            </div>
+                            <div class="form-group">
+                                <a href="{{ login_page }}" class="btn btn-lg btn-default btn-block">Back to Login</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="assets/css/contact.css">
+{% endblock %}
+{% block body %}
+    <h4 class="title">Bank of the Future</h4>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="./">Home</a></li>
+                <li><a href="about">About Us</a></li>
+                <li><a href="services">Services</a></li>
+                <li><a href="login">Customer Login</a></li>
+                <li><a href="employee-login">Employee Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <form method="post" action="contact">
+        {{ csrf_field() }}
+        <label for="name">Name:</label>
+        <input type="text" name="name" id="name" maxlength="100" required>
+
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required>
+
+        <label for="question">Question:</label>
+        <textarea name="question" id="question" maxlength="500" required
+                  oninput="document.getElementById('charNum').textContent = 'Remaining Characters: ' + (500 - this.value.length)"></textarea>
+        <div id="charNum">Remaining Characters: 500</div>
+        <input type="submit" value="Submit">
+    </form>
+
+    <footer>
+        <p>&copy; Bank of the Future</p>
+    </footer>
+{% endblock %}
