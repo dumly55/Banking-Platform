@@ -17,17 +17,21 @@ section {
   margin: 0 auto;
   padding: 0;
   display: block;
+  perspective: 1200px; /* gives the card flip depth */
 }
 
+/* Card flip: both faces sit on top of each other, the back pre-turned 180deg;
+   hovering turns the whole card in place. */
 .container {
+  position: relative;
   margin: 0 auto;
   height: 250px;
   width: 375px;
-  transition: 0.6s;
+  transition: transform .6s cubic-bezier(.2, .8, .2, 1);
   transform-style: preserve-3d;
 }
 .container:hover {
-  transform: translate(-50%, -50%) rotateY(180deg) rotateX(0);
+  transform: rotateY(180deg);
 }
 .container .card {
   height: 100%;
@@ -42,6 +46,9 @@ section {
 }
 
 .container button {
+  position: absolute;
+  top: 0;
+  left: 0;
   border-radius: 25px;
   cursor: pointer;
   background-size: cover;
@@ -97,7 +104,7 @@ h5.name {
 }
 
 .back-face {
-  transform: translate(-50%, -50%) rotateY(180deg) rotateX(0);
+  transform: rotateY(180deg);
   border: none;
   padding: 15px 25px 25px 250px;
 }
