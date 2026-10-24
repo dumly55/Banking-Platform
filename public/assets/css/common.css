@@ -1,0 +1,82 @@
+/* Shared by every page: flash messages and the inactivity timeout dialog. */
+
+.flash {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    max-width: min(90vw, 520px);
+    padding: 12px 20px;
+    border-radius: 6px;
+    font: 15px/1.4 "Poppins", Arial, sans-serif;
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+    cursor: pointer;
+    animation: flash-in .25s ease-out;
+}
+.flash + .flash { top: 72px; }
+.flash-error   { background: #b42318; }
+.flash-success { background: #12733a; }
+.flash-info    { background: #1f4e9c; }
+@keyframes flash-in { from { opacity: 0; transform: translate(-50%, -10px); } }
+
+.timeout-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0, 0, 0, .7);
+    align-items: center;
+    justify-content: center;
+}
+.timeout-modal.open { display: flex; }
+.timeout-box {
+    background: #fff;
+    color: #222;
+    padding: 28px 32px;
+    border-radius: 10px;
+    text-align: center;
+    font: 18px/1.5 "Poppins", Arial, sans-serif;
+    max-width: 90vw;
+}
+.timeout-box button,
+.timeout-box a {
+    display: inline-block;
+    margin: 16px 6px 0;
+    padding: 10px 22px;
+    border: 0;
+    border-radius: 6px;
+    background: navy;
+    color: #fff;
+    font: inherit;
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
+}
+.timeout-box a { background: #666; }
+
+.match-message { display: block; font-size: 13px; }
+.dev-note {
+    margin: 12px 0;
+    padding: 8px 12px;
+    border: 1px dashed #c58a00;
+    border-radius: 6px;
+    background: rgba(255, 244, 214, .95);
+    color: #5c4100;
+    font-size: 14px;
+}
+
+.form-errors {
+    margin: 0 0 16px;
+    padding: 10px 14px 10px 30px;
+    border-radius: 6px;
+    background: rgba(180, 35, 24, .9);
+    color: #fff;
+    font-size: 14px;
+    text-align: left;
+}
+.form-hint { text-align: center; margin-bottom: 14px; }
+.empty-state { margin: 20px auto; max-width: 520px; padding: 12px; background: rgba(255, 255, 255, .85); border-radius: 6px; text-align: center; color: #333; }
+.link-button { background: none; border: 0; padding: 0; color: inherit; font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+.virtual-keyboard summary { cursor: pointer; margin-bottom: 8px; }
