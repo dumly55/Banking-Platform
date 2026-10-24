@@ -1,11 +1,13 @@
 """Simulates two years of Bank of the Future activity and loads it into SQLite.
 
     python build.py        writes data/bank.db (tables from sql/schema.sql, analysis views from sql/views.sql)
+                           and one CSV per view in data/tableau/ for Tableau to open
 
 The simulation keeps the original web app's rules (src/banking.php in the git history): check
 deposits post only once an employee approves them, withdrawals and transfers that would overdraw
 an account are refused, and interest compounds once a year on each account's opening anniversary.
 """
+import csv
 import heapq
 import itertools
 import math
@@ -190,8 +192,21 @@ def build(path, **options):
     return db
 
 
+def export(db, folder):
+    """Writes each analysis view to folder/<name>.csv (Tableau Public can read CSV but not SQLite)."""
+    folder.mkdir(parents=True, exist_ok=True)
+    for (view,) in db.execute("SELECT name FROM sqlite_master WHERE type = 'view'").fetchall():
+        rows = db.execute(f'SELECT * FROM {view}')
+        with open(folder / f'{view.removeprefix("v_")}.csv', 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(column[0] for column in rows.description)
+            writer.writerows(rows)
+
+
 if __name__ == '__main__':
     (ROOT / 'data').mkdir(exist_ok=True)
     db = build(ROOT / 'data' / 'bank.db')
     for table in ('customers', 'accounts', 'transactions', 'check_deposits'):
         print(f'{table:>15}: {db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]:,}')
+    export(db, ROOT / 'data' / 'tableau')
+    print('Tableau data sources written to data/tableau/')

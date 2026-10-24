@@ -66,6 +66,13 @@ class SimulationTest(unittest.TestCase):
                WHERE m.end_balance IS NULL OR ABS(m.end_balance - a.balance) > 0.005"""), 0)
         self.assertEqual(self.scalar('SELECT COUNT(*) FROM v_cohort_retention WHERE retention NOT BETWEEN 0 AND 1'), 0)
 
+    def test_export_writes_every_view_row(self):
+        folder = Path(self.tmp.name) / 'tableau'
+        build.export(self.db, folder)
+        for view in ('v_transactions', 'v_monthly_balances', 'v_customers', 'v_cohort_retention'):
+            with open(folder / f'{view[2:]}.csv', encoding='utf-8') as f:
+                self.assertEqual(sum(1 for _ in f) - 1, self.scalar(f'SELECT COUNT(*) FROM {view}'))
+
 
 if __name__ == '__main__':
     unittest.main()
