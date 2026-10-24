@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Inquiries{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="assets/css/employee.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+{% endblock %}
+{% block body %}
+    {% include '_employee_nav.html' %}
+    <br>
+    {% for status, caption, action, label in [('Open', 'Ongoing Inquiries', 'resolve', 'Resolve'),
+                                              ('Resolved', 'Resolved Inquiries', 'reopen', 'Reopen')] %}
+        <table class="inquiries">
+            <caption>{{ caption }} ({{ tickets[status] | length }})</caption>
+            <thead>
+                <tr><th>Ticket Number</th><th>Name</th><th>Email</th><th>Question</th><th>Submitted</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                {% for t in tickets[status] %}
+                    <tr>
+                        <td>{{ t.id }}</td>
+                        <td>{{ t.name }}</td>
+                        <td><a href="mailto:{{ t.email }}">{{ t.email }}</a></td>
+                        <td class="question">{{ t.question | nl2br }}</td>
+                        <td>{{ t.created_at | us_datetime }}</td>
+                        <td>
+                            <form action="employee-inquiries" method="post">
+                                {{ csrf_field() }}
+                                <input type="hidden" name="ticket" value="{{ t.id }}">
+                                <button name="action" type="submit" value="{{ action }}">{{ label }}</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table><br>
+    {% endfor %}
+    {% include '_session_timeout.html' %}
+{% endblock %}

@@ -1,7 +1,8 @@
-"""The employee back office: login, new-hire registration, and the dashboard with hiring and termination."""
-from flask import Blueprint, render_template, request, session
+"""The employee back office: login, new-hire registration, the dashboard with hiring and termination,
+check deposit review and support inquiries."""
+from flask import Blueprint, abort, render_template, request, send_from_directory, session
 
-from . import config, db
+from . import banking, config, db
 from .auth import hash_password, password_matches, redirect_if_logged_in, require_employee
 from .helpers import back_with, form, go
 from .mail import send_mail
@@ -147,3 +148,55 @@ def employee():
     terminable = terminable_employees(me) if me['tier'] > 1 else []
     return render_staff('employee.html', me, f"Welcome to work, {me['first_name']} {me['last_name']}!", 'employee',
                         accounts=accounts, terminable=terminable)
+
+
+@bp.route('/employee-deposits', methods=['GET', 'POST'])
+def employee_deposits():
+    me = require_employee()
+    if request.method == 'POST':
+        decision = form('decision')
+        if decision not in ('approve', 'deny'):
+            go('employee-deposits')
+        if not banking.review_deposit(me['id'], form('transaction'), decision == 'approve'):
+            back_with('employee-deposits', 'That deposit was already reviewed.')
+        back_with('employee-deposits', 'Deposit approved.' if decision == 'approve' else 'Deposit denied.', 'success')
+
+    deposits = db.many(
+        "SELECT t.id, t.amount, t.account_number, t.created_at, u.first_name, u.last_name"
+        " FROM transactions t"
+        " JOIN check_deposits d ON d.transaction_id = t.id"
+        " JOIN accounts a ON a.account_number = t.account_number"
+        " JOIN users u ON u.id = a.user_id"
+        " WHERE t.type = 'Deposit' AND t.status = 'Pending'"
+        " ORDER BY t.created_at"
+    )
+    return render_staff('employee-deposits.html', me, 'Pending Deposits', 'employee-deposits', deposits=deposits)
+
+
+@bp.route('/check-image')
+def check_image():
+    """Serves uploaded check images to employees. Uploads live outside the web root so they
+    can't be fetched directly by guessing a URL."""
+    require_employee()
+    column = 'back_image' if form('side') == 'back' else 'front_image'
+    name = db.value(f'SELECT {column} FROM check_deposits WHERE transaction_id = %s', (form('id'),))
+    if not name:
+        abort(404)
+    response = send_from_directory(banking.DEPOSIT_UPLOADS, name)  # refuses paths outside the folder; 404 if missing
+    response.headers['Cache-Control'] = 'private, max-age=3600'  # never stored by shared caches
+    return response
+
+
+@bp.route('/employee-inquiries', methods=['GET', 'POST'])
+def employee_inquiries():
+    me = require_employee()
+    if request.method == 'POST':
+        status = {'resolve': 'Resolved', 'reopen': 'Open'}.get(form('action'))
+        if status:
+            db.execute('UPDATE support_tickets SET status = %s WHERE id = %s', (status, form('ticket')))
+        go('employee-inquiries')
+
+    tickets = {'Open': [], 'Resolved': []}
+    for ticket in db.many('SELECT * FROM support_tickets ORDER BY created_at'):
+        tickets[ticket['status']].append(ticket)
+    return render_staff('employee-inquiries.html', me, 'Inquiries', 'employee-inquiries', tickets=tickets)

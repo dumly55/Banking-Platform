@@ -5,7 +5,7 @@ import secrets
 from decimal import ROUND_HALF_UP, Decimal
 
 from flask import abort, flash, make_response, redirect, request, session
-from markupsafe import Markup
+from markupsafe import Markup, escape
 
 CENT = Decimal('0.01')
 
@@ -31,6 +31,11 @@ def money(amount):
 
 def format_card_number(number):
     return ' '.join(number[i:i + 4] for i in range(0, len(number), 4))
+
+
+def nl2br(text):
+    """Escapes text and keeps its line breaks (like PHP's nl2br(e(...)))."""
+    return escape(text).replace('\n', Markup('<br>\n'))
 
 
 def us_datetime(value, seconds=False, separator=' '):

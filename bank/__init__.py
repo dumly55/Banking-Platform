@@ -10,7 +10,7 @@ from flask import Flask, request
 from flask_session import Session
 
 from . import config
-from .helpers import csrf_field, format_card_number, money, us_datetime, verify_csrf
+from .helpers import csrf_field, format_card_number, money, nl2br, us_datetime, verify_csrf
 
 # Windows' registry often lacks these, so images would be served as application/octet-stream.
 mimetypes.add_type('image/webp', '.webp')
@@ -36,7 +36,7 @@ def create_app():
     Session(app)
 
     app.jinja_env.globals['csrf_field'] = csrf_field
-    app.jinja_env.filters.update(money=money, card=format_card_number, us_datetime=us_datetime)
+    app.jinja_env.filters.update(money=money, card=format_card_number, us_datetime=us_datetime, nl2br=nl2br)
 
     @app.before_request
     def check_csrf():

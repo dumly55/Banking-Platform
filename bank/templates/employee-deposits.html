@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Pending Deposits{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="assets/css/employee.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <script src="assets/js/lightbox.js" defer></script>
+{% endblock %}
+{% block body %}
+    {% include '_employee_nav.html' %}
+    <br>
+    <table>
+        <caption>Pending Online Deposits ({{ deposits | length }})</caption>
+        <thead>
+            <tr><th>Front of Check</th><th>Back of Check</th><th>Details</th><th>Approve/Deny</th></tr>
+        </thead>
+        <tbody>
+            {% for d in deposits %}
+                <tr>
+                    <td><img src="check-image?id={{ d.id }}&amp;side=front" alt="Front of check" loading="lazy"></td>
+                    <td><img src="check-image?id={{ d.id }}&amp;side=back" alt="Back of check" loading="lazy"></td>
+                    <td class="details">
+                        <strong>{{ d.amount | money }}</strong><br>
+                        {{ d.first_name }} {{ d.last_name }}<br>
+                        Account {{ d.account_number }}<br>
+                        <small>{{ d.created_at | us_datetime }}</small>
+                    </td>
+                    <td>
+                        <form action="employee-deposits" method="post">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="transaction" value="{{ d.id }}">
+                            <button name="decision" type="submit" value="approve">Approve</button>
+                            <button name="decision" type="submit" value="deny">Deny</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include '_session_timeout.html' %}
+{% endblock %}
