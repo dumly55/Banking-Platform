@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} | Bank of the Future</title>
+    <link rel="icon" href="assets/img/{% block icon %}favicon.ico{% endblock %}">
+    {% block head %}{% endblock %}
+    <link rel="stylesheet" href="assets/css/common.css">
+</head>
+<body>
+    {% for kind, message in get_flashed_messages(with_categories=true) %}
+        <div class="flash flash-{{ kind }}" role="alert" onclick="this.remove()">{{ message }}</div>
+    {% endfor %}
+    {% block body %}{% endblock %}
+</body>
+</html>

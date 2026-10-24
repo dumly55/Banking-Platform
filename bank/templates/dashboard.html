@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}My Accounts{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <script src="assets/js/forms.js" defer></script>
+{% endblock %}
+{% block body %}
+    <h1>
+        <span style="font-weight: bold;">Welcome, {{ first_name }}!</span>
+        {% set current = 'dashboard' %}{% include '_user_nav.html' %}
+        <div class="lbtn"><a onclick="togglePopup('popup-transfer')" style="cursor: pointer;" class="log logbutton">Transfer</a></div>
+        <div class="lbtn"><a onclick="togglePopup('popup-open')" style="cursor: pointer;" class="log logbutton">Open an Account</a></div>
+    </h1>
+
+    <form action="account" method="get">
+        <div class="account">
+            <br>
+            <p class="name"><span>Account(s)</span></p><br>
+            {% for acc in accounts %}
+                <button name="number" value="{{ acc.account_number }}" type="submit">
+                    <span class="bal">{{ acc.balance | money }}</span>
+                    <span class="num">{{ acc.type }} Account<br>(#{{ acc.account_number }})</span>
+                </button><br>
+            {% else %}
+                <p class="empty-state">You don't have any accounts yet. Use <b>Open an Account</b> to get started.</p>
+            {% endfor %}
+        </div>
+    </form>
+
+    <div class="popup" id="popup-open">
+        <div class="overlay" onclick="togglePopup('popup-open')"></div>
+        <div class="content">
+            <div class="close-btn" onclick="togglePopup('popup-open')">&times;</div>
+            <form action="open-account" method="post">
+                {{ csrf_field() }}
+                <div class="container">
+                    <h2>Choose an Account</h2>
+                    <input type="radio" id="checking" name="type" value="Checking" required>
+                    <label for="checking">Checking Account</label> <br>
+                    <input type="radio" id="savings" name="type" value="Savings" required>
+                    <label for="savings">Savings Account</label> <br>
+                    <button type="submit" class="btn">Open</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="popup" id="popup-transfer">
+        <div class="overlay" onclick="togglePopup('popup-transfer')"></div>
+        <div class="content">
+            <div class="close-btn" onclick="togglePopup('popup-transfer')">&times;</div>
+            <form action="transfer" method="post">
+                {{ csrf_field() }}
+                <h2>Transfer</h2>
+                <label for="from">From:</label>
+                <select name="from" id="from" required>
+                    {% for acc in accounts %}
+                        <option value="{{ acc.account_number }}">{{ acc.type }} ({{ acc.account_number }}) &ndash; {{ acc.balance | money }}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <label for="to">To (Account #):</label>
+                <input type="text" name="to" id="to" minlength="16" maxlength="16" inputmode="numeric" data-filter="digits" required><br>
+                <label for="amount">Amount ($):</label>
+                <input type="text" name="amount" id="amount" inputmode="decimal" data-filter="money" required><br><br>
+                <button type="submit" class="btn">Transfer</button>
+            </form>
+        </div>
+    </div>
+
+    {% include '_session_timeout.html' %}
+{% endblock %}

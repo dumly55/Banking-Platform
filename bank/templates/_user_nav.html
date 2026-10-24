@@ -1,0 +1,4 @@
+{# Customer nav buttons. Floated right, so the first link renders rightmost. #}
+{% for href, label in [('logout', 'Logout'), ('deposit', 'Deposit'), ('atm', 'ATM'), ('dashboard', 'Home')] if href != current %}
+    <div class="lbtn"><a href="{{ href }}" class="log logbutton">{{ label }}</a></div>
+{% endfor %}

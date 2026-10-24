@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="assets/css/auth.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+{% endblock %}
+{% block body %}
+    <div class="wrapper">
+        <form action="login" method="post">
+            {{ csrf_field() }}
+            <h1>Login</h1>
+            <div class="input-box">
+                <input type="text" placeholder="" name="username" autocomplete="username" required autofocus>
+                <i class='bx bxs-user'></i>
+                <span class="floating-label">Username</span>
+            </div>
+            <div class="input-box">
+                <input type="password" placeholder="" name="password" autocomplete="current-password" required>
+                <i class='bx bxs-lock-alt'></i>
+                <span class="floating-label">Password</span>
+            </div>
+            <div class="remember-forgot">
+                <a href="forgot">Forgot Password or Username?</a>
+            </div>
+            <button type="submit" class="btn">Login</button>
+            <div class="register-link">
+                <p>Don't have an account? <a href="register">Register</a></p>
+            </div>
+            <div class="register-link">
+                <p><a href="./">Home</a></p>
+            </div>
+        </form>
+    </div>
+{% endblock %}
