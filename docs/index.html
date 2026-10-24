@@ -89,6 +89,40 @@
                 </figure>
             </div>
         </section>
+
+        <section id="customers" class="section wrap">
+            <h2>Customers</h2>
+            <p class="section-lede">
+                Customers are spread across the country much like the US population, but money is not spread evenly:
+                the top tenth of customers hold <span data-fill="top_decile_share">…</span> of it. Most customers keep
+                using the bank, but each signup cohort slowly thins out.
+            </p>
+            <div class="chart-grid">
+                <figure class="card chart-card" id="states-figure">
+                    <figcaption>
+                        <h3>Where customers live</h3>
+                        <p>Customers per state</p>
+                    </figcaption>
+                    <div class="tile-map" id="state-map" role="img" aria-label="Tile map of customers by state. The most are in California, Texas, Florida and New York."></div>
+                    <ul class="bin-legend" id="state-legend"></ul>
+                </figure>
+                <figure class="card chart-card" id="deciles-figure">
+                    <figcaption>
+                        <h3>Who holds the money</h3>
+                        <p>Share of all money held by each tenth of customers, richest first</p>
+                    </figcaption>
+                    <div class="chart-box"><canvas id="deciles-chart" role="img" aria-label="Bar chart: the richest tenth of customers hold 40% of all money, the poorest tenth under 1%"></canvas></div>
+                </figure>
+            </div>
+            <figure class="card chart-card wide" id="retention-figure">
+                <figcaption>
+                    <h3>Retention by signup month</h3>
+                    <p>Share of each month's new customers who moved money N months later. Month 0 is partial, since people join throughout the month.</p>
+                </figcaption>
+                <div class="heatmap-scroll"><table class="heatmap" id="retention-heatmap"></table></div>
+                <ul class="bin-legend" id="retention-legend"></ul>
+            </figure>
+        </section>
     </main>
 
     <footer class="footer">
