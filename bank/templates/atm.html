@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}ATM{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="assets/css/atm.css">
+    <script src="assets/js/forms.js" defer></script>
+{% endblock %}
+{% block body %}
+    <h1>
+        Choose a Card to Withdraw Money From:
+        {% set current = 'atm' %}{% include '_user_nav.html' %}
+    </h1>
+    <br>
+    {% if not accounts %}
+        <p class="empty-state">Open an account from the home page to get a debit card.</p>
+    {% endif %}
+
+    {% for acc in accounts %}
+        {% set i = loop.index0 %}
+        {% set background = 'savings_card.jpeg' if acc.type == 'Savings' else 'checking_card.jpg' %}
+        <section>
+            <div class="container">
+                <button type="button" class="card front" onclick="togglePopup('popup-{{ i }}')"
+                        style="background-image: url(assets/img/{{ background }});">
+                    <header>
+                        <div class="logo">
+                            <img src="assets/img/piggy.png" alt="">
+                            <h5 id="mas">Bank of the Future Card</h5>
+                        </div>
+                        <img src="assets/img/chip.png" alt="" class="chip">
+                    </header>
+                    <div class="card-details">
+                        <div class="name-number">
+                            <h6>Card number</h6>
+                            <h5 class="number">{{ acc.account_number | card }}</h5>
+                            <h5 class="name">{{ user.first_name }} {{ user.last_name }}</h5>
+                        </div>
+                        <div class="VALIDDATE">
+                            <h6 class="v">Balance</h6>
+                            <h6 class="v">{{ acc.balance | money }}</h6>
+                        </div>
+                    </div>
+                </button>
+                <button type="button" class="card back-face" onclick="togglePopup('popup-{{ i }}')"
+                        style="background-image: url(assets/img/{{ background }});">
+                    <h6>For customer service, please call our support number.</h6>
+                    <span class="strip"></span>
+                    <div class="sign"><i>***</i></div>
+                    <div class="add">
+                        <h6 style="color: aliceblue;">
+                            {{ acc.type }} Account Debit Card<br>Account Number:<br>{{ acc.account_number }}
+                        </h6>
+                    </div>
+                </button>
+            </div>
+        </section><br>
+
+        <div class="popup" id="popup-{{ i }}">
+            <div class="overlay" onclick="togglePopup('popup-{{ i }}')"></div>
+            <div class="content">
+                <div class="close-btn" onclick="togglePopup('popup-{{ i }}')">&times;</div>
+                <form action="atm" method="post">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="account" value="{{ acc.account_number }}">
+                    <h2 style="color: black;">ATM</h2>
+                    <p style="color: black;">{{ acc.type }} &middot; {{ acc.balance | money }} available</p>
+                    <label style="color: black;" for="pin-{{ i }}">PIN</label>
+                    <input type="password" name="pin" id="pin-{{ i }}" minlength="4" maxlength="4" inputmode="numeric" data-filter="digits" required><br>
+                    <label style="color: black;" for="amount-{{ i }}">Amount ($):</label>
+                    <input type="text" name="amount" id="amount-{{ i }}" inputmode="decimal" data-filter="money" required><br><br>
+                    <button class="btn" style="color: black;" type="submit">Withdraw</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+
+    <img id="wallet" src="assets/img/wallet.webp" alt="">
+    {% include '_session_timeout.html' %}
+{% endblock %}

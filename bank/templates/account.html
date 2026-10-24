@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Account Info{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="assets/css/account.css">
+{% endblock %}
+{% block body %}
+    {% set status_color = {'Processed': 'green', 'Denied': 'red', 'Pending': 'gray'} %}
+    <h1>
+        Account Information
+        {% include '_user_nav.html' %}
+    </h1>
+    <h2>{{ account.type }} Account ({{ account.account_number }})</h2>
+    <p id="balance">Balance: {{ account.balance | money }}</p>
+    <p id="time_created">
+        Opened: {{ account.created_at | us_datetime }}
+        | Interest: {{ ('%.2f' | format(account.interest_rate * 100)).rstrip('0').rstrip('.') }}% APY
+    </p>
+    <div class="account">
+        <p class="name">Transaction(s)</p><br>
+        {% for t in transactions %}
+            <a class="acc">
+                <span class="bal">{{ t.amount | money }}</span>
+                <span class="description">{{ t.description }}</span>
+                <span class="status" style="color: {{ status_color[t.status] }}">{{ t.status }}</span>
+                <span class="date">{{ t.created_at | us_datetime(seconds=true, separator=' | ') }}</span>
+                <span class="obal">{% if t.balance_before is not none %}Prior balance: {{ t.balance_before | money }}{% endif %}</span>
+                <span class="tnum">Transaction #: {{ t.id }}</span>
+            </a><br>
+        {% else %}
+            <p class="empty-state">No transactions yet.</p>
+        {% endfor %}
+        <br>
+    </div>
+    {% include '_session_timeout.html' %}
+{% endblock %}
