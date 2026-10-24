@@ -24,6 +24,8 @@ def create_app():
         response.headers['Referrer-Policy'] = 'same-origin'
         return response
 
-    from . import public
+    from . import db, public, setup
+    app.teardown_appcontext(db.close)
+    app.cli.add_command(setup.setup_db)
     app.register_blueprint(public.bp)
     return app
