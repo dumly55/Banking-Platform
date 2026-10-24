@@ -56,6 +56,16 @@ class SimulationTest(unittest.TestCase):
             """SELECT COUNT(*) FROM transactions t JOIN accounts a USING (account_number)
                WHERE t.type = 'Interest' AND ABS(t.amount - t.balance_before * a.interest_rate) > 0.005001"""), 0)
 
+    def test_views_agree_with_the_tables(self):
+        for view, table in [('v_transactions', 'transactions'), ('v_customers', 'customers')]:
+            self.assertEqual(self.scalar(f'SELECT COUNT(*) FROM {view}'), self.scalar(f'SELECT COUNT(*) FROM {table}'))
+        # Every account's last month-end balance is its current balance.
+        self.assertEqual(self.scalar(
+            """SELECT COUNT(*) FROM accounts a LEFT JOIN v_monthly_balances m
+                 ON m.account_number = a.account_number AND m.month = (SELECT MAX(month) FROM v_monthly_balances)
+               WHERE m.end_balance IS NULL OR ABS(m.end_balance - a.balance) > 0.005"""), 0)
+        self.assertEqual(self.scalar('SELECT COUNT(*) FROM v_cohort_retention WHERE retention NOT BETWEEN 0 AND 1'), 0)
+
 
 if __name__ == '__main__':
     unittest.main()

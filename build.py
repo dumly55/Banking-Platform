@@ -1,6 +1,6 @@
 """Simulates two years of Bank of the Future activity and loads it into SQLite.
 
-    python build.py        writes data/bank.db
+    python build.py        writes data/bank.db (tables from sql/schema.sql, analysis views from sql/views.sql)
 
 The simulation keeps the original web app's rules (src/banking.php in the git history): check
 deposits post only once an employee approves them, withdrawals and transfers that would overdraw
@@ -185,6 +185,7 @@ def build(path, **options):
     db.executescript((ROOT / 'sql' / 'schema.sql').read_text())
     for table, data in simulate(**options).items():
         db.executemany(f'INSERT INTO {table} VALUES ({", ".join("?" * len(data[0]))})', data)
+    db.executescript((ROOT / 'sql' / 'views.sql').read_text())
     db.commit()
     return db
 
