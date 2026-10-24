@@ -1,8 +1,9 @@
 """Money movement. Every balance change runs inside a database transaction with the affected
 account rows locked (SELECT ... FOR UPDATE), so concurrent requests can't double-spend."""
+import secrets
 from decimal import Decimal
 
-from . import db
+from . import config, db
 from .helpers import money, to_cents
 
 ACCOUNT_TYPES = {
@@ -10,6 +11,10 @@ ACCOUNT_TYPES = {
     'Checking': ('4100', Decimal('0.0005')),
     'Savings': ('4200', Decimal('0.0057')),
 }
+
+DEPOSIT_IMAGE_TYPES = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp'}
+DEPOSIT_MAX_BYTES = 5 * 1024 * 1024
+DEPOSIT_UPLOADS = config.STORAGE / 'uploads' / 'deposits'
 
 
 def user_accounts(user_id):
@@ -120,6 +125,53 @@ def withdraw(user_id, account_number, amount):
             return f"Insufficient funds: your balance is {money(account['balance'])}."
         db.execute('UPDATE accounts SET balance = balance - %s WHERE account_number = %s', (amount, account_number))
         record_transaction(account_number, 'Withdrawal', 'Processed', -amount, account['balance'], 'ATM withdrawal')
+    return None
+
+
+def image_type(head):
+    """Identifies an image by its first bytes (as PHP's finfo did), so a renamed file can't pass."""
+    if head.startswith(b'\xff\xd8\xff'):
+        return 'image/jpeg'
+    if head.startswith(b'\x89PNG\r\n\x1a\n'):
+        return 'image/png'
+    if head[:6] in (b'GIF87a', b'GIF89a'):
+        return 'image/gif'
+    if head[:4] == b'RIFF' and head[8:12] == b'WEBP':
+        return 'image/webp'
+    return None
+
+
+def store_check_image(upload):
+    """Validates an uploaded check image and stores it under a random name. Returns (file name, error)."""
+    if not upload or not upload.filename:
+        return None, 'Please upload both sides of the check.'
+    data = upload.read(DEPOSIT_MAX_BYTES + 1)
+    if len(data) > DEPOSIT_MAX_BYTES:
+        return None, 'Check images must be 5 MB or smaller.'
+    extension = DEPOSIT_IMAGE_TYPES.get(image_type(data[:12]))
+    if not extension:
+        return None, 'Check images must be JPG, PNG, GIF or WebP files.'
+    name = f'{secrets.token_hex(16)}.{extension}'
+    DEPOSIT_UPLOADS.mkdir(parents=True, exist_ok=True)
+    (DEPOSIT_UPLOADS / name).write_bytes(data)
+    return name, None
+
+
+def create_deposit(user_id, account_number, amount, front, back):
+    """Creates a pending check deposit for an employee to review. Returns an error message, or None."""
+    if not user_account(user_id, account_number):
+        return 'Choose one of your accounts to deposit into.'
+    front_name, error = store_check_image(front)
+    if error:
+        return error
+    back_name, error = store_check_image(back)
+    if error:
+        (DEPOSIT_UPLOADS / front_name).unlink(missing_ok=True)
+        return error
+    with db.transaction():
+        transaction_id = record_transaction(account_number, 'Deposit', 'Pending', amount, None, 'Mobile check deposit')
+        db.execute('INSERT INTO check_deposits (transaction_id, front_image, back_image) VALUES (%s, %s, %s)',
+                   (transaction_id, front_name, back_name))
     return None
 
 

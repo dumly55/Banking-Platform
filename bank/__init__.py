@@ -31,6 +31,7 @@ def create_app():
         PERMANENT_SESSION_LIFETIME=timedelta(hours=1),  # how long idle session files are kept
         SESSION_COOKIE_SAMESITE='Lax',
         SESSION_COOKIE_SECURE=config.URL.startswith('https://'),
+        MAX_CONTENT_LENGTH=11 * 1024 * 1024,  # two 5 MB check images plus the form; bigger requests are refused
     )
     Session(app)
 

@@ -86,3 +86,18 @@ def atm():
 
     user = db.one('SELECT first_name, last_name FROM users WHERE id = %s', (user_id,))
     return render_template('atm.html', user=user, accounts=banking.user_accounts(user_id))
+
+
+@bp.route('/deposit', methods=['GET', 'POST'])
+def deposit():
+    user_id = require_user()
+    if request.method == 'POST':
+        amount = parse_amount(form('amount'))
+        if not amount:
+            back_with('deposit', 'Enter a valid amount greater than $0.00.')
+        error = banking.create_deposit(user_id, form('account'), amount,
+                                       request.files.get('frontCheck'), request.files.get('backCheck'))
+        if error:
+            back_with('deposit', error)
+        back_with('deposit', f'Your deposit of {money(amount)} is being processed. It will appear in your balance once approved.', 'success')
+    return render_template('deposit.html', accounts=banking.user_accounts(user_id))

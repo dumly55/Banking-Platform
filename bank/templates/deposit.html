@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Deposit{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="assets/css/deposit.css">
+    <script src="assets/js/forms.js" defer></script>
+{% endblock %}
+{% block body %}
+    <div id="form-container">
+        <div class="container">
+            <h1>Online Check Deposit</h1><br>
+            {% if not accounts %}
+                <p>You need an account before you can deposit. <a href="dashboard">Open one from the home page.</a></p>
+            {% else %}
+                <form action="deposit" method="post" enctype="multipart/form-data" style="display: inline-block;">
+                    {{ csrf_field() }}
+                    <label for="account">To:</label>
+                    <select name="account" id="account" required>
+                        {% for acc in accounts %}
+                            <option value="{{ acc.account_number }}">{{ acc.type }} ({{ acc.account_number }})</option>
+                        {% endfor %}
+                    </select>
+                    <br><br>
+                    <div id="form-section">
+                        $<input type="text" name="amount" placeholder="Enter a dollar amount" id="amount" inputmode="decimal" data-filter="money" required>
+                        <br><br>
+                    </div>
+                    Upload a picture of the front of your check:
+                    <input type="file" name="frontCheck" accept="image/jpeg,image/png,image/gif,image/webp" required>
+                    <br>
+                    Upload a picture of the back of your check:
+                    <input type="file" name="backCheck" accept="image/jpeg,image/png,image/gif,image/webp" required>
+                    <br><br>
+                    <input type="submit" value="Deposit" id="deposit">
+                    <button type="reset" onclick="return confirm('Are you sure you want to reset the form?')">Reset</button>
+                </form>
+            {% endif %}
+            <br><br><br><br>
+            <form action="dashboard" style="display: inline-block;">
+                <button type="submit" id="home-button">Home</button>
+            </form>
+        </div>
+    </div>
+    {% include '_session_timeout.html' %}
+{% endblock %}
