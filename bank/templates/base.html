@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %} | Bank of the Future</title>
     <link rel="icon" href="assets/img/{% block icon %}favicon.ico{% endblock %}">
+    {# Poppins is requested here, in parallel with the CSS, instead of via @import inside each stylesheet #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     {% block head %}{% endblock %}
     <link rel="stylesheet" href="assets/css/common.css">
 </head>
