@@ -1,0 +1,7 @@
+# Libraries for the analysis notebook, on top of the app's own.
+-r ../requirements.txt
+pandas>=2.2
+matplotlib>=3.8
+scipy>=1.11
+scikit-learn>=1.4
+jupyter
