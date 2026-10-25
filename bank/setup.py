@@ -118,6 +118,9 @@ def load_demo_data():
             ' VALUES (%s, %s, %s, %s, CURDATE() - INTERVAL %s DAY, NOW() - INTERVAL %s DAY)',
             (number, user_ids[owner], kind, banking.ACCOUNT_TYPES[kind][1], days_ago, days_ago),
         )
+    # Each demo customer signed up when they opened their first account, not on the day setup ran.
+    db.execute('UPDATE users u JOIN (SELECT user_id, MIN(created_at) AS opened FROM accounts GROUP BY user_id) a'
+               ' ON a.user_id = u.id SET u.created_at = a.opened')
 
     history = [
         # account, type, amount, description, days ago
