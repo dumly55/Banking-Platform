@@ -37,6 +37,43 @@ The app was first written in PHP and later ported to Python, keeping the same pa
 - Tiered roles: tellers (1), managers (2) and admins (3). Managers and admins can hire into lower tiers, and new hires register with the employee ID from their offer email
 - Managers can terminate their own hires and admins can terminate anyone below them. Access is revoked on the terminated employee's next request
 
+## Data analysis
+
+The app's database is also the subject of an analysis, in [analysis/](analysis/).
+
+**The question:** the bank is growing fast, from 35 to about 120 new customers a month. Is it keeping them, and where does its back office let customers down?
+
+**The data:** `flask --app bank setup-db --fresh --simulate` fills the database with two years of activity (October 2024 to September 2026): about 2,000 customers, 2,750 accounts, 154,000 transactions and 37,000 check reviews. [bank/simulate.py](bank/simulate.py) generates it with the app's own rules: deposits wait for an employee's review on weekdays, overdrafts are refused, and interest compounds yearly.
+
+### Findings
+
+| Finding | Evidence | Recommendation |
+|---|---|---|
+| **Weekend checks wait days, not hours** | Checks sent on Saturday wait a median of 47 hours, against about 10 on weekdays. A Mann-Whitney U test gives p < 0.001. About 100 checks a week arrive on weekends. | Add a short Saturday review shift. |
+| **Reviewers don't agree on what to deny** | Denial rates run from 1.4% to 4.6% by reviewer. Chi-square tests within each check size give p < 0.001, and every reviewer sees the same mix of checks. | Write down denial criteria, and have reviewers regularly judge the same sample of checks. |
+| **Going quiet is the warning sign** | "Days since last activity" alone predicts who stops using the bank (ROC AUC 0.92). A logistic regression only reaches 0.95, and balance, savings and denied checks add nothing. 79 customers look at risk today, holding $1.4M. | Send a weekly report of customers who have gone quiet, largest balances first. |
+| **A few customers hold most of the money** | The top 10% of customers hold 39% of deposits (Gini 0.54). Dormant customers still hold $2.5M, 10% of the total. | Put the largest balances first in any retention work. |
+| **New customers wait a week for money to arrive** | The median new customer waits 7–9 days for a first check to clear, and 1 in 10 waits two weeks. | Let customers fund the account when they sign up. |
+
+About 79% of customers are still active a year after signing up. Customers fade out gradually rather than leaving right after joining.
+
+### How it's done
+
+- **SQL (MySQL 8):** [analysis/queries/](analysis/queries/) holds 9 queries, each answering one business question, with its answer in the header. They run against the app's normalized tables using joins, CTEs, window functions (`LAG`, `NTILE`, running `SUM() OVER`), cohort analysis, medians and percentiles built from `ROW_NUMBER()` (MySQL has no `PERCENTILE_CONT`), `WITH ROLLUP` totals, and a z-test in SQL.
+- **Python:** [analysis/analysis.ipynb](analysis/analysis.ipynb) uses pandas and matplotlib to explore (Lorenz curve and Gini, review-time spread, a cohort retention heatmap), scipy for hypothesis tests (Mann-Whitney U, chi-square, Wilson confidence intervals), and scikit-learn for a dormancy model. The model uses features built from data before the snapshot date only, is compared against a simple baseline, and is explained with permutation importance.
+- **Data quality:** the cohort analysis exposed demo customers whose activity predated their signup, which was fixed in the seed data.
+
+**Limitations:** the data is simulated, so these patterns come from rules built into the simulation, such as stricter reviewers and business-hours reviews. The point is the method: the same queries, tests and model would surface them in real data.
+
+### Run it yourself
+
+```bash
+flask --app bank setup-db --fresh --simulate     # about 15 seconds; also loads the demo accounts
+pip install -r analysis/requirements.txt          # pandas, matplotlib, scipy, scikit-learn, jupyter
+```
+
+Run any file in `analysis/queries/` in MySQL Workbench or VS Code's SQLTools. Then open `analysis/analysis.ipynb` in VS Code or Jupyter. Simulated customers and staff log in with `Password123` (customer PIN `1234`), like the demo accounts.
+
 ## Quick start
 
 **Requirements:** Python 3.9+ (tested on 3.12) and MySQL 8 or MariaDB 10.5+.
@@ -102,11 +139,17 @@ bank/                  The Flask app
   customer.py          Dashboard, accounts, transfers, ATM, check deposits
   staff.py             Employee login, hiring, deposit review, support tickets
   setup.py             The `flask setup-db` command and demo data
+  simulate.py          Two years of simulated activity (`setup-db --simulate`) for analysis
   templates/           One Jinja template per page, plus shared layout and nav
   static/              CSS, JavaScript and images, served at /assets
+analysis/
+  queries/             Business-question SQL, each with its answer in the header
+  analysis.ipynb       Python analysis: exploration, hypothesis tests, dormancy model
+  requirements.txt     Extra libraries for the notebook
 database/schema.sql    Table definitions
 storage/               Sessions, uploaded check images and the mail log (git-ignored)
 tests/smoke.sh         End-to-end test suite
+tests/test_simulate.py Checks that the simulated history follows the bank's rules
 ```
 
 ## Security
@@ -137,6 +180,14 @@ bash tests/smoke.sh                    # or BASE_URL=http://localhost:5000 bash 
 ```
 
 The suite needs `bash` and `curl`, which Git Bash on Windows includes. It makes 72 checks covering login and MFA, transfers, ATM withdrawals, deposits and their review, registration, hiring and termination, support tickets and password reset. It also checks that the access-control rules hold, for example that you can't transfer out of someone else's account. The suite changes demo data (for example, `jdoe`'s password becomes `NewPass456`), so run `flask --app bank setup-db --fresh` afterwards for a clean demo.
+
+The simulated history has its own checks, which don't need a database:
+
+```bash
+python -m unittest tests/test_simulate.py
+```
+
+They replay every account's ledger, and check that transfers pair up, that reviews happen during business hours, and that interest matches each account's rate.
 
 ## Tech stack
 
