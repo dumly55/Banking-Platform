@@ -3,6 +3,8 @@
     flask --app bank setup-db            create the database + tables (refuses if tables already exist)
     flask --app bank setup-db --seed     ...and add demo customers, employees and transactions
     flask --app bank setup-db --fresh    drop and recreate everything (destroys existing data!)
+    flask --app bank setup-db --fresh --simulate
+                                         ...plus ~2,000 simulated customers with two years of history (see simulate.py)
 """
 import re
 import secrets
@@ -10,7 +12,7 @@ from decimal import Decimal
 
 import click
 
-from . import banking, config, db
+from . import banking, config, db, simulate
 from .auth import hash_password
 from .validation import ssn_fingerprint
 
@@ -33,9 +35,11 @@ def ensure_app_key():
 @click.command('setup-db')
 @click.option('--seed', is_flag=True, help='Also add demo customers, employees and transactions.')
 @click.option('--fresh', is_flag=True, help='Drop and recreate everything. Destroys existing data!')
-def setup_db(seed, fresh):
+@click.option('--simulate', 'with_history', is_flag=True,
+              help='Also add ~2,000 simulated customers with two years of history, for analysis.')
+def setup_db(seed, fresh, with_history):
     """Create the database and tables, and optionally load demo data."""
-    seed = seed or fresh
+    seed = seed or fresh or with_history
     ensure_app_key()
 
     # Demo accounts have published passwords, so they must never exist on a live server.
@@ -61,6 +65,10 @@ def setup_db(seed, fresh):
 
     if seed:
         load_demo_data()
+    if with_history:
+        click.echo('Simulating two years of activity...')
+        counts = simulate.load()
+        click.echo('Added ' + ', '.join(f'{count:,} {table}' for table, count in counts.items()) + '.')
 
 
 def load_demo_data():

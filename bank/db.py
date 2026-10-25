@@ -62,6 +62,13 @@ def execute(sql, params=()):
         return cursor.rowcount
 
 
+def execute_many(sql, rows, batch=2000):
+    """Runs an INSERT for many rows, sent as multi-row statements in one transaction."""
+    with transaction(), db().cursor() as cursor:
+        for start in range(0, len(rows), batch):
+            cursor.executemany(sql, rows[start:start + batch])
+
+
 @contextmanager
 def transaction():
     """Runs the block inside a transaction, rolling back if it raises."""
